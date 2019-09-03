@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+$mdc-theme-secondary: #64dd17;
+
+@import '~normalize.css/normalize.css';
+@import '@material/theme/mdc-theme.scss';
+@import '@material/ripple/mdc-ripple';
+@import '@material/textfield/mdc-text-field';
+@import '@material/floating-label/mdc-floating-label';
+@import '@material/notched-outline/mdc-notched-outline';
+@import '@material/line-ripple/mdc-line-ripple';
+@import '@material/button/mdc-button';
+@import '@material/snackbar/mdc-snackbar';
+@import '@material/list/mdc-list';
+@import '@material/typography/mdc-typography';
+@import '@material/icon-button/mdc-icon-button';
+@import '@material/dialog/mdc-dialog';
+@import '@material/checkbox/mdc-checkbox';
+@import '@material/form-field/mdc-form-field';
+@import '~@rmwc/circular-progress/circular-progress.css';
+@import '~@rmwc/icon/icon.css';
+
+html,
+body {
+  height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  height: 100%;
+}
