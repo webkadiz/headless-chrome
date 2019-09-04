@@ -102,6 +102,10 @@ checkBrowsers(paths.appPath, isInteractive)
         buildFolder,
         useYarn
       )
+
+      fs.rename(paths.appBuild + '/index.html', '../views/index.html', err => {
+        if(err) throw err
+      })
     },
     err => {
       console.log(chalk.red('Failed to compile.\n'))

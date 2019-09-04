@@ -21,6 +21,7 @@ export default class TenderList extends Component {
               <ListItemMeta
                 icon={
                   <>
+                    <IconButton icon='build' onClick={() => {}}/>
                     <Link to="editing-tender"><IconButton icon='edit' onClick={setEditableTender.bind(null, tenderName)}/></Link>
                     <IconButton icon='close' onClick={requestDeleteTender.bind(null, tenderName)}/>
                   </>
