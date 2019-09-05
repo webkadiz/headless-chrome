@@ -44,17 +44,18 @@ module.exports = async () => {
     }
 
     tenders.forEach(async (tender, index) => {
-      const { tenderLink, tenderSecondsBeforeEnd, tenderTimeEnd } = tender
+      const { tenderLink, tenderSecondsBeforeEnd, tenderTimeEnd, inTesting, isComplete } = tender
 
       const millisecondsLeftEnd = differenceTime(tenderTimeEnd, new Date) // difference between time end and time now
       const secondsLeftEnd = millisecondsToSeconds(millisecondsLeftEnd)
 
       console.log(secondsLeftEnd, tenderSecondsBeforeEnd)
 
-      if (secondsLeftEnd < tenderSecondsBeforeEnd && !tenderInServing) {
+      if ((secondsLeftEnd < tenderSecondsBeforeEnd || inTesting) && !tenderInServing && !isComplete) {
 
         console.log('begin serving', tenderLink)
         tenderInServing = true
+        tender.inTesting = false
 
         try {
 
@@ -66,11 +67,11 @@ module.exports = async () => {
 
           await page.evaluate(serveTenderScript, tender)
 
-          tenders.splice(index, 1)
+          tender.isComplete = true
 
         } catch(e) {
           console.log('error', e)
-          tenders.splice(index, 1)
+          tender.isComplete = true
         }
         
         tenderInServing = false
