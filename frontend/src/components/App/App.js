@@ -14,7 +14,8 @@ import { snackbarTimeout } from '@src/constants'
 
 
 if (process.env.NODE_ENV === 'development') {
-  axios.defaults.baseURL = 'http://192.168.1.66:8000'
+  //axios.defaults.baseURL = 'http://192.168.1.66:8000'
+  axios.defaults.baseURL = 'http://192.168.10.125:8000'
 } else {
   axios.defaults.baseURL = ''
 }

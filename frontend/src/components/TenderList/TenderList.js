@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { TenderContext } from '@src/TenderContext'
 
-import { List, ListItem, ListItemMeta, ListDivider } from '@rmwc/list'
+import { List, ListItem, ListItemText, ListItemPrimaryText, ListItemSecondaryText, ListItemMeta, ListDivider } from '@rmwc/list'
 import { IconButton } from '@rmwc/icon-button'
 import {Link} from 'react-router-dom'
 
@@ -13,11 +13,16 @@ export default class TenderList extends Component {
     const { requestDeleteTender } = this.props
 
     return (
-      <List disabled>
+      <List twoLine>
         {tenders.map(({tenderName}, index) => (
           <Fragment key={index}>
             <ListItem ripple='unbounded'>
-              {tenderName}
+             
+              <ListItemText>
+                <ListItemPrimaryText>{tenderName}</ListItemPrimaryText>
+                <ListItemSecondaryText>45</ListItemSecondaryText>
+              </ListItemText>
+              
               <ListItemMeta
                 icon={
                   <>

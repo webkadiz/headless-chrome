@@ -1,11 +1,11 @@
 function differenceTime(time1, time2) {
-  let dateOfTime1, dateOfTime2
+  let dateOfTime1 = time1, dateOfTime2 = time2
 
-  if(typeof time1 === 'string') {
+  if(typeof time1 === 'string' || typeof time1 === 'number') {
     dateOfTime1 = new Date(time1)
   }
 
-  if(typeof time1 === 'string') {
+  if(typeof time1 === 'string' || typeof time2 === 'number') {
     dateOfTime2 = new Date(time2)
   }
 
