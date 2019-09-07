@@ -32,7 +32,9 @@ app.listen(8000, () => {
   console.log('server listening')
 });
 
-require('./browser/startup')()
+require('./browser/startup')(1, 3)
+require('./browser/startup')(2, 3)
+require('./browser/startup')(3, 3)
 
 
 

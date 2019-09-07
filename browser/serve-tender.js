@@ -45,7 +45,7 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
 
         i++
         if (i < positions.length) {
-          setTimeout(innerRecursion.bind(null, res, rej), 100)
+          setTimeout(innerRecursion.bind(null, res, rej), 500)
         } else {
           res()
         }

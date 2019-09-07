@@ -8,9 +8,10 @@ const tenders = require('../tenders')
 const { differenceTime, millisecondsToSeconds, createError, createSuccess } = require('../functions')
 
 
-module.exports = async () => {
+module.exports = async (pos, amount) => {
   let tenderInServing = false
   let lastTimeOfReload = 0
+  let tendersSlice = []
   const pathToExtension = '~/.config/google-chrome/Default/Extensions/aohghmighlieiainnegkcijnfilokake/0.10_0/main.html'
 
   const browser = await puppeteer.launch({
@@ -35,13 +36,21 @@ module.exports = async () => {
   setInterval(async () => {
 
     const differenceBetweenReload = differenceTime(new Date, lastTimeOfReload)
-
+    
     if(differenceBetweenReload > PAGE_RELOAD_DELAY && !tenderInServing) {
       lastTimeOfReload = +new Date()
       await page.reload()
     }
 
-    tenders.forEach(async tender => {
+    const amountPart = Math.floor(tenders.length / amount)
+
+    if(pos === amount)
+      tendersSlice = tenders.slice((pos - 1) * amountPart)
+    else
+      tendersSlice = tenders.slice((pos - 1) * amountPart, pos * amountPart)
+
+
+    tendersSlice.forEach(async tender => {
       const { tenderLink, tenderSecondsBeforeEnd, tenderTimeEnd, inWork } = tender
 
       const millisecondsLeftEnd = differenceTime(tenderTimeEnd, new Date) // difference between time end and time now
