@@ -23,5 +23,6 @@ module.exports = {
     'tenderStep',
     'inWork',
     'messages'
-  ]
+  ],
+  AMOUNT_BROWSERS: 3
 }

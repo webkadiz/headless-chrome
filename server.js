@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const tenderRoute = require('./routes/tender')
+const { AMOUNT_BROWSERS } = require('./constants')
 
 
 app.use(express.json())
@@ -32,9 +33,11 @@ app.listen(8000, () => {
   console.log('server listening')
 });
 
-require('./browser/startup')(1, 3)
-require('./browser/startup')(2, 3)
-require('./browser/startup')(3, 3)
+
+for(let i = 1; i <= AMOUNT_BROWSERS; i++) {
+  require('./browser/startup')(i, AMOUNT_BROWSERS)
+}
+
 
 
 
