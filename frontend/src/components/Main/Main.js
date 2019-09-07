@@ -66,17 +66,17 @@ export default class Main extends Component {
         tenderName: nameOfDeleteTender
       }
     })
-    .then(response => {
+    .then(() => {
       this.context.deleteTender(nameOfDeleteTender)
 
       queue.notify({
         body: `Тендер: ${nameOfDeleteTender} успешно удален`,
-        icon: 'check'
+        icon: 'check_circle'
       })
-    }).catch(err => {
+    }).catch(() => {
       queue.notify({
         body: `Не удалось удалить тендер: ${nameOfDeleteTender}`,
-        icon: 'close'
+        icon: 'error'
       })
     }).finally(() => {
       this.setState({

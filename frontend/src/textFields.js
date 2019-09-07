@@ -36,5 +36,19 @@ export default [
     label: 'Шаг в рублях от минимальной цены, которую предложили конкуренты',
     value: '',
     error: ''
+  },
+  {
+    name: 'inWork',
+    label: 'Включить тендер',
+    value: false,
+    error: '',
+    type: 'checkbox'
+  },
+  {
+    name: 'messages',
+    label: 'Сообщения',
+    value: [],
+    error: '',
+    type: 'hidden'
   }
 ]

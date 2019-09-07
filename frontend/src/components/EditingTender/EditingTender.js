@@ -5,6 +5,7 @@ import { Button } from '@rmwc/button'
 import { Link } from 'react-router-dom'
 import { TenderContext } from '@src/TenderContext'
 import { TextField } from '@rmwc/textfield'
+import { Checkbox } from '@rmwc/checkbox'
 import { CircularProgress } from '@rmwc/circular-progress'
 import _ from 'lodash'
 import textFields from '@src/textFields'
@@ -54,6 +55,16 @@ export default class EditingTender extends Component {
       return state
     })
     
+  }
+
+  handleChangeCheckbox = (name, e) => {
+    this.setState(state => {
+      state.textFields.find(
+        input => input.name === name
+      ).value = !state.textFields.find(input => input.name === name).value
+
+      return state
+    })
   }
 
   startLoading() {
@@ -120,7 +131,7 @@ export default class EditingTender extends Component {
 
         queue.notify({
           body: `Тендер ${textFieldsValues.tenderName} успешно обновлен`,
-          icon: 'check'
+          icon: 'check_circle'
         })
 
         this.props.history.push('/')
@@ -129,7 +140,7 @@ export default class EditingTender extends Component {
 
         queue.notify({
           body: `Не удалось обновить тендер: ${textFieldsValues.tenderOldName}`,
-          icon: 'close'
+          icon: 'error'
         })
       })
   }
@@ -138,7 +149,7 @@ export default class EditingTender extends Component {
     const {
       tenderLoading
     } = this.state
-    const { handleClickBack, handleChangeInput, updateTender } = this
+    const { handleClickBack, handleChangeInput, handleChangeCheckbox, updateTender } = this
     const { editingTender, btn } = s
 
     return (
@@ -148,8 +159,22 @@ export default class EditingTender extends Component {
         </Link>
         <div className={s.formContainer}>
           <div className={s.form}>
-            {this.state.textFields.map(textField => (
-              <TextField
+            {this.state.textFields.map(textField => {
+
+              if(textField.type === 'hidden') return
+
+              if(textField.type === 'checkbox') {
+                return (
+                  <Checkbox
+                    key={textField.name}
+                    label={textField.label}
+                    checked={textField.value}
+                    onChange={handleChangeCheckbox.bind(null, textField.name)}
+                  />
+                )
+              }
+              
+              return <TextField
                 outlined
                 type={textField.type}
                 key={textField.name}
@@ -160,7 +185,7 @@ export default class EditingTender extends Component {
                 invalid={textField.error}
                 onChange={handleChangeInput.bind(null, textField.name)}
               />
-            ))}
+            })}
             <Button
               className={btn}
               label='Сохранить'

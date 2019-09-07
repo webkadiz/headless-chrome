@@ -7,6 +7,8 @@ const {
   validationTenderPut
 } = require('../validation')
 const tenders = require('../tenders')
+const { TENDER_FIELDS } = require('../constants')
+const _ = require('lodash')
 
 router
   .route('/')
@@ -23,23 +25,9 @@ router
       return
     }
 
-    const {
-      tenderName,
-      tenderLink,
-      tenderTimeEnd,
-      tenderSecondsBeforeEnd,
-      tenderMinPrice,
-      tenderStep
-    } = req.body
+    const tender = _.pick(req.body, TENDER_FIELDS)
 
-    tenders.push({
-      tenderName,
-      tenderLink,
-      tenderTimeEnd,
-      tenderSecondsBeforeEnd,
-      tenderMinPrice,
-      tenderStep
-    })
+    tenders.push(tender)
 
     res.json({
       result: true
@@ -54,28 +42,13 @@ router
       return
     }
 
-    const {
-      tenderOldName,
-      tenderName,
-      tenderLink,
-      tenderTimeEnd,
-      tenderSecondsBeforeEnd,
-      tenderMinPrice,
-      tenderStep
-    } = req.body
+    const tender = _.pick(req.body, TENDER_FIELDS)
 
     const indexOldTender = tenders.findIndex(
-      tender => tender.tenderName === tenderOldName
+      tender => tender.tenderName === req.body.tenderOldName
     )
 
-    tenders.splice(indexOldTender, 1, {
-      tenderName,
-      tenderLink,
-      tenderTimeEnd,
-      tenderSecondsBeforeEnd,
-      tenderMinPrice,
-      tenderStep
-    })
+    tenders.splice(indexOldTender, 1, tender)
 
     res.json({
       result: true

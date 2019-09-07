@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-$mdc-theme-secondary: #64dd17;
+$mdc-theme-secondary: #1ce2d8;
 
 @import '~normalize.css/normalize.css';
 @import '@material/theme/mdc-theme.scss';
@@ -36,4 +36,9 @@ body {
 
 #root {
   height: 100%;
+}
+
+.mdc-theme--success {
+  color: #007E33 !important;
+  color: var(--mdc-theme-success, #007E33) !important;
 }

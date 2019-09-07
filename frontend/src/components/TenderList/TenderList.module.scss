@@ -1,0 +1,18 @@
+
+.inner-list {
+  padding-top: 0;
+  padding-bottom: 0;
+
+  :global(.mdc-list-item__text) {
+    align-self: auto;
+  }
+
+  :global(.mdc-list-item) {
+    height: 48px;
+  }
+
+  :global(.mdc-list-item__secondary-text) {
+    display: flex;
+  }
+  
+}
