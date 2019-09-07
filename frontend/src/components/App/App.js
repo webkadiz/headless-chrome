@@ -10,7 +10,7 @@ import { SnackbarQueue } from '@rmwc/snackbar'
 import { queue } from '@src/SnackbarQueue'
 import axios from 'axios'
 
-import { snackbarTimeout } from '@src/constants'
+import { SNACKBAR_TIMEOUT } from '@src/constants'
 
 
 if (process.env.NODE_ENV === 'development') {
@@ -29,17 +29,30 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    axios('/tender')
-      .then(response => {
-        this.setState({
-          tenders: response.data.tenders
+    console.log('app mount')
+    
+    this.queryIntervalID = setInterval(() => {
+
+      axios('/tender')
+        .then(response => {
+          console.log('new')
+          this.setState({
+            tenders: response.data.tenders
+          })
+          
+          if(this.state.editableTender.tenderName)
+            this.setEditableTender(this.state.editableTender.tenderName)
+        }).catch(err => {
+          queue.notify({
+            body: 'Не удалось получить тендеры с сервера. Попробуйте перезагрузить страницу',
+            icon: 'error'
+          })
         })
-      }).catch(() => {
-        queue.notify({
-          body: 'Не удалось получить тендеры с сервера. Попробуйте перезагрузить страницу',
-          icon: 'error'
-        })
-      })
+    }, 3000)
+  }
+
+  componentWillMount() {
+    clearInterval(this.queryIntervalID)
   }
 
   addTender = tender => {
@@ -57,9 +70,16 @@ export default class App extends React.Component {
     })
   }
 
-  updateTender = renewedTender => {
+  updateTender = (renewedTender, tenderOldName) => {
     this.setState(state => {
-      const indexOldTender = state.tenders.findIndex(
+      let indexOldTender
+
+      if(tenderOldName)
+      indexOldTender = state.tenders.findIndex(
+        tender => tender.tenderName === tenderOldName
+      )
+      else
+      indexOldTender = state.tenders.findIndex(
         tender => tender.tenderName === state.editableTender.tenderName
       )
 
@@ -96,7 +116,7 @@ export default class App extends React.Component {
           <Route exact path='/' component={Main} />
           <Route path='/creation-tender' component={CreationTender} />
           <Route path='/editing-tender' component={EditingTender} />
-          <SnackbarQueue messages={queue.messages} timeout={snackbarTimeout} />
+          <SnackbarQueue messages={queue.messages} timeout={SNACKBAR_TIMEOUT} />
         </TenderContext.Provider>
       </div>
     )

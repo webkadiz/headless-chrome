@@ -124,7 +124,7 @@ export default class CreationTender extends Component {
           <div className={s.form}>
             {textFields.map(textField => {
 
-              if(textField.type === 'hidden') return
+              if(textField.type === 'hidden') return ''
               
               if (textField.type === 'checkbox') {
                 return (

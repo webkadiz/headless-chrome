@@ -103,7 +103,8 @@ const validationTenderPut = [
         tenders.find(tender => tender.tenderName === value).tenderName ===
           req.body.tenderOldName
     )
-    .withMessage(TENDER_EXISTS),
+    .withMessage(TENDER_EXISTS)
+    .optional(),
   body('tenderLink')
     .isString()
     .withMessage(BE_STRING)
@@ -122,7 +123,8 @@ const validationTenderPut = [
         tenders.find(tender => tender.tenderLink === value).tenderName ===
           req.body.tenderOldName
     )
-    .withMessage(TENDER_LINK_EXISTS),
+    .withMessage(TENDER_LINK_EXISTS)
+    .optional(),
   body('tenderTimeEnd')
     .isString()
     .withMessage(BE_STRING)
@@ -136,19 +138,24 @@ const validationTenderPut = [
     .withMessage(INVALID_DATE)
     .bail()
     .custom(value => differenceTime(value, new Date()) > 0)
-    .withMessage(BE_POSITIVE_DATE),
+    .withMessage(BE_POSITIVE_DATE)
+    .optional(),
   body('tenderSecondsBeforeEnd')
     .isInt({ gt: 0 })
-    .withMessage(BE_POSITIVE_INT),
+    .withMessage(BE_POSITIVE_INT)
+    .optional(),
   body('tenderMinPrice')
     .isInt({ gt: 0 })
-    .withMessage(BE_POSITIVE_INT),
+    .withMessage(BE_POSITIVE_INT)
+    .optional(),
   body('tenderStep')
     .isInt({ gt: 0 })
-    .withMessage(BE_POSITIVE_INT),
+    .withMessage(BE_POSITIVE_INT)
+    .optional(),
   body('inWork')
     .isBoolean()
-    .withMessage(BE_BOOL),
+    .withMessage(BE_BOOL)
+    .optional(),
   body('messages')
     .isArray()
     .withMessage(MESSAGE_BE_ARRAY)
@@ -158,7 +165,8 @@ const validationTenderPut = [
         value.length <=
         tenders.find(tender => tender.tenderName === req.body.tenderOldName)
           .messages.length
-    ),
+    )
+    .optional(),
   body('messages.*.type')
     .isString()
     .withMessage(BE_STRING)

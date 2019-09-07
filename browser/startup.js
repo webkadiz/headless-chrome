@@ -5,34 +5,32 @@ const serveTenderScript = require('./serve-tender')
 const {PAGE_RELOAD_DELAY, MAIN_LOOP_DELAY} = require('../constants')
 const credentials = require('../credential')
 const tenders = require('../tenders')
-const { differenceTime, millisecondsToSeconds } = require('../functions')
+const { differenceTime, millisecondsToSeconds, createError, createSuccess } = require('../functions')
 
 
 module.exports = async () => {
-  let tenderInServing = null
+  let tenderInServing = false
   let lastTimeOfReload = 0
   const pathToExtension = '~/.config/google-chrome/Default/Extensions/aohghmighlieiainnegkcijnfilokake/0.10_0/main.html'
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     executablePath: '/usr/bin/google-chrome',
     // args: [
     //   `--disable-extensions-except=${pathToExtension}`,
     //   `--load-extension=${pathToExtension}`
     // ],
     ignoreDefaultArgs: true,
-    defaultViewport: null,
-    devtools: true
+    defaultViewport: null
   });
 
   const page = await browser.newPage()
 
-  page.setDefaultTimeout(6000)
+  page.setDefaultTimeout(10000)
 
   await page.goto('***')
 
   await page.evaluate(loginScript, credentials)
-
 
   setInterval(async () => {
 
@@ -43,7 +41,7 @@ module.exports = async () => {
       await page.reload()
     }
 
-    tenders.forEach(async (tender, index) => {
+    tenders.forEach(async tender => {
       const { tenderLink, tenderSecondsBeforeEnd, tenderTimeEnd, inWork } = tender
 
       const millisecondsLeftEnd = differenceTime(tenderTimeEnd, new Date) // difference between time end and time now
@@ -51,12 +49,11 @@ module.exports = async () => {
 
       console.log(secondsLeftEnd, tenderSecondsBeforeEnd)
 
-      if (secondsLeftEnd < tenderSecondsBeforeEnd && !tenderInServing && inWork) {
+      if (secondsLeftEnd < tenderSecondsBeforeEnd && inWork && !tenderInServing) {
 
         console.log('begin serving', tenderLink)
         tenderInServing = true
-        tender.inWork = false
-
+        
         try {
 
           await page.goto(tenderLink)
@@ -64,14 +61,17 @@ module.exports = async () => {
           await page.click('.*** .btn')
 
           await page.waitFor(`.***`)
-
+          console.log('after wait for')
           await page.evaluate(serveTenderScript, tender)
+          console.log('after evaluate')
 
-
+          tender.messages.push(createSuccess('Тендер успешно отработан'))
         } catch(e) {
+          tender.messages.push(createError('Тендер отработал с ошибкой'))
           console.log('error', e)
         }
         
+        tender.inWork = false
         tenderInServing = false
         console.log('end serving', tenderLink)
 

@@ -1,5 +1,4 @@
-module.exports = async ({tenderMinPrice ,tenderStep }) => {
-
+module.exports = async ({ tenderMinPrice, tenderStep }) => {
   Node.prototype.q = function(selector) {
     return this.querySelector(selector)
   }
@@ -9,7 +8,7 @@ module.exports = async ({tenderMinPrice ,tenderStep }) => {
   }
 
   async function wait(f, ms) {
-    if(typeof f === 'number') {
+    if (typeof f === 'number') {
       ms = f
       f = () => {}
     }
@@ -21,47 +20,57 @@ module.exports = async ({tenderMinPrice ,tenderStep }) => {
       }, ms)
     })
   }
+
   
-  let i = 0
-  const positions = document.qAll('.panel')
+  function positionsLoop() {
+    let i = 0
+    const positions = document.qAll('.panel')
 
-  await new Promise((res, rej) => {
-    (function positionsLoop() {
-      const position = positions[i]
-      const heading = position.q('.***')
-      
-      heading.click()
-      
-      const priceForUnit = position.q('#***')
-      const savePositionsBtn = position.q(`***`)
+    return function innerRecursion(res, rej) {
+      try {
+        const position = positions[i]
+        const heading = position.q('.***')
 
-      priceForUnit.value -= tenderStep
-      priceForUnit.dispatchEvent(new InputEvent('input'))
- 
-      savePositionsBtn.click();     
+        heading.click()
 
-      i++;
-      if (i < positions.length) {
-        setTimeout(positionsLoop, 250)
-      } else {
-        res()
+        const priceForUnit = position.q('#***')
+        const savePositionsBtn = position.q(
+          `***`
+        )
+        console.log(priceForUnit)
+        priceForUnit.value -= tenderStep
+        priceForUnit.dispatchEvent(new InputEvent('input'))
+
+        savePositionsBtn.click()
+
+        i++
+        if (i < positions.length) {
+          setTimeout(innerRecursion.bind(null, res, rej), 100)
+        } else {
+          res()
+        }
+      } catch (e) {
+        rej(e)
       }
-    })()
+    }
+  }
 
-  })
-  
+  try {
+    await new Promise(positionsLoop())
+  } catch (e) {
+    console.log('error', e)
+  }
+
   const sum = +document.q('#***').value
   const areement = document.q('#***')
   const saveBtn = document.q(`***`)
 
-
-  if(sum < tenderMinPrice) return
+  if (sum < tenderMinPrice) return
 
   areement.checked = true
   areement.dispatchEvent(new InputEvent('click'))
-  
-  await wait(() => saveBtn.click(), 500)
 
-  await wait(500)
+  await wait(() => saveBtn.click(), 100)
 
+  await wait(100)
 }

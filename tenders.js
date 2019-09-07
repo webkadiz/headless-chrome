@@ -25,13 +25,12 @@ module.exports = [
   },
   {
     tenderName: "2",
-    tenderLink:
-      '***',
+    tenderLink: '***',
     tenderTimeEnd: time,
     tenderSecondsBeforeEnd: 10,
-    tenderMinPrice: 50000,
+    tenderMinPrice: 1000,
     tenderStep: 5,
-    inWork: false,
+    inWork: true,
     messages: []
   },
   {
@@ -39,9 +38,9 @@ module.exports = [
     tenderLink: '***',
     tenderTimeEnd: time,
     tenderSecondsBeforeEnd: 10,
-    tenderMinPrice: 50000,
+    tenderMinPrice: 1000,
     tenderStep: 5,
-    inWork: false,
+    inWork: true,
     messages: []
   }
 ]

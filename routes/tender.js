@@ -42,16 +42,22 @@ router
       return
     }
 
-    const tender = _.pick(req.body, TENDER_FIELDS)
+    const reqTender = _.pick(req.body, TENDER_FIELDS)
 
     const indexOldTender = tenders.findIndex(
       tender => tender.tenderName === req.body.tenderOldName
     )
+    const oldTender = tenders.find(
+      tender => tender.tenderName === req.body.tenderOldName
+    )
 
-    tenders.splice(indexOldTender, 1, tender)
+    const newTender = Object.assign({}, oldTender, reqTender)
+    console.log("TCL: newTender", newTender)
+
+    tenders.splice(indexOldTender, 1, newTender)
 
     res.json({
-      result: true
+      result: {newTender}
     })
 
     next()

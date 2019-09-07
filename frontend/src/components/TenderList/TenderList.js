@@ -12,21 +12,55 @@ import {
   ListDivider
 } from '@rmwc/list'
 import { IconButton } from '@rmwc/icon-button'
-import { Ripple } from '@rmwc/ripple'
 import { Link } from 'react-router-dom'
-
+import { queue } from '@src/SnackbarQueue'
+import axios from 'axios'
 
 const sanitizeTime = time => new Date(time).toLocaleString()
+
+const chooseIcon = type => {
+  if (type === 'success') return 'check_circle'
+  else if (type === 'error') return 'error'
+  return ''
+}
+
+const TenderTime = ({ tender: { tenderTimeEnd, tenderSecondsBeforeEnd } }) =>
+  sanitizeTime(new Date(tenderTimeEnd) - 1000 * tenderSecondsBeforeEnd)
+
+const MessageTime = ({ time }) => <>&nbsp;&mdash;&nbsp;{sanitizeTime(time)}</>
 
 export default class TenderList extends Component {
   static contextType = TenderContext
 
-  computeTime = tender => {
-    return String(
-      sanitizeTime(
-        new Date(tender.tenderTimeEnd) - 1000 * tender.tenderSecondsBeforeEnd
-      )
+  deleteMessage = (tender, time) => {
+    const messageTender = {}
+
+    messageTender.messages = tender.messages.filter(
+      message => message.time !== time
     )
+
+    messageTender.tenderOldName = tender.tenderName
+
+    axios
+      .put('/tender', messageTender)
+      .then(response => {
+        if (response.data.error) throw new Error()
+
+        this.context.updateTender(
+          response.data.result.newTender,
+          messageTender.tenderOldName
+        )
+        queue.notify({
+          body: 'Сообщение удалено',
+          icon: 'check_circle'
+        })
+      })
+      .catch(err => {
+        queue.notify({
+          body: 'Не удалось удалить сообщение',
+          icon: 'error'
+        })
+      })
   }
 
   render() {
@@ -38,14 +72,14 @@ export default class TenderList extends Component {
       <List twoLine>
         {tenders.map((tender, index) => (
           <Fragment key={index}>
-            <ListItem ripple='unbounded'>
+            <ListItem>
               <ListItemText>
                 <ListItemPrimaryText>{tender.tenderName}</ListItemPrimaryText>
                 <ListItemSecondaryText>
-                  {this.computeTime(tender)}
+                  <TenderTime tender={tender} />
                 </ListItemSecondaryText>
               </ListItemText>
-              
+
               <ListItemMeta
                 icon={
                   <>
@@ -71,52 +105,26 @@ export default class TenderList extends Component {
             </ListItem>
             <ListDivider />
             <List className={innerList}>
-              {
-                tender.messages.map(message => {
-                  if (message.type === 'success')
-                    return (
-                      <ListItem>
-                        <ListItemGraphic icon="check_circle" theme="success"/>
-                        <ListItemSecondaryText theme="success">{message.message}</ListItemSecondaryText>
-                        
-                        <ListItemMeta
-                          icon={
-                            <>
-                              <IconButton
-                                icon='close'
-                                onClick={requestDeleteTender.bind(
-                                  null,
-                                  tender.tenderName
-                                )}
-                              />
-                            </>
-                          }
-                        />
-                      </ListItem>
-                    )
-                  else if (message.type === 'error')
-                    return (
-                      <ListItem>
-                        <ListItemGraphic icon="error" theme="error"/>
-                        <ListItemSecondaryText theme="error">{message.message}</ListItemSecondaryText>
-                        <ListItemSecondaryText>&nbsp;- {sanitizeTime(message.time)}</ListItemSecondaryText>
+              {tender.messages.map(({ type, message, time }) => (
+                <ListItem key={time}>
+                  <ListItemGraphic icon={chooseIcon(type)} theme={type} />
+                  <ListItemSecondaryText theme={type}>
+                    {message}
+                  </ListItemSecondaryText>
+                  <ListItemSecondaryText>
+                    <MessageTime time={time} />
+                  </ListItemSecondaryText>
 
-                        <ListItemMeta
-                          icon={
-                            <>
-                              <IconButton
-                                icon='close'
-                                onClick={requestDeleteTender.bind(
-                                  null,
-                                  tender.tenderName
-                                )}
-                              />
-                            </>
-                          }
-                        />
-                      </ListItem>
-                    )
-                })}
+                  <ListItemMeta
+                    icon={
+                      <IconButton
+                        icon='close'
+                        onClick={this.deleteMessage.bind(null, tender, time)}
+                      />
+                    }
+                  />
+                </ListItem>
+              ))}
             </List>
           </Fragment>
         ))}

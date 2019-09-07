@@ -1,2 +1,2 @@
 
-export const snackbarTimeout = 3000;
+export const SNACKBAR_TIMEOUT = 3000;

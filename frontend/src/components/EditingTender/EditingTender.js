@@ -23,6 +23,8 @@ export default class EditingTender extends Component {
 
   static contextType = TenderContext
 
+  component
+
   componentDidMount() {
     if (_.isEmpty(this.state.editableTender)) {
       this.props.history.push('/')

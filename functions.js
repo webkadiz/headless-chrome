@@ -18,4 +18,16 @@ function millisecondsToSeconds(milliseconds) {
   return milliseconds / 1000
 }
 
-module.exports = {differenceTime, millisecondsToSeconds}
+const createError = message => ({
+  type: 'error',
+  message,
+  time: new Date
+})
+
+const createSuccess = message => ({
+  type: 'success',
+  message,
+  time: new Date
+})
+
+module.exports = {differenceTime, millisecondsToSeconds, createError, createSuccess}
