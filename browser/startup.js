@@ -17,6 +17,7 @@ module.exports = async (pos, amount) => {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: '/usr/bin/google-chrome',
+    //executablePath: 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome',
     // args: [
     //   `--disable-extensions-except=${pathToExtension}`,
     //   `--load-extension=${pathToExtension}`
