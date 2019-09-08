@@ -12,7 +12,7 @@ module.exports = {
     MESSAGES_BE_EMPTY: 'Массив сообщений должен быть пустым',
     MESSAGE_BE_ARRAY: 'Сообщения должны быть массивом'
   },
-  PAGE_RELOAD_DELAY: 1000 * 60 * 20,
+  PAGE_RELOAD_DELAY: 1000 * 60 * 15,
   MAIN_LOOP_DELAY: 1000,
   TENDER_FIELDS: [
     'tenderName',

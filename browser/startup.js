@@ -28,7 +28,7 @@ module.exports = async (pos, amount) => {
 
   const page = await browser.newPage()
 
-  page.setDefaultTimeout(15000)
+  page.setDefaultTimeout(20000)
 
   await page.goto('***')
 
