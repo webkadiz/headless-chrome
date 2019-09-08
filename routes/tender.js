@@ -8,6 +8,7 @@ const {
 } = require('../util/validation')
 const tenders = require('../data/tenders')
 const { TENDER_FIELDS } = require('../data/constants')
+const logger = require('../util/logger')
 const _ = require('lodash')
 
 router
@@ -21,6 +22,7 @@ router
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
+      logger.error(errors, 'error in post request')
       res.json(errors)
       return
     }
@@ -38,6 +40,7 @@ router
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
+      logger.error(errors, 'error in put request')
       res.json(errors)
       return
     }
@@ -67,6 +70,7 @@ router
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
+      logger.error(errors, 'error in delete request')
       res.json(errors)
       return
     }

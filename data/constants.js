@@ -7,10 +7,17 @@ module.exports = {
     INVALID_DATE: 'Дата не соответствует формату YYYY-MM-DDTHH:MM',
     INVALID_LINK: 'Ссылка должна начинаться с ***',
     BE_POSITIVE_DATE: 'Дата должна иметь будущее значение',
-    TENDER_EXISTS: 'Такое тендер уже существует',
+    TENDER_EXISTS: 'Такой тендер уже существует',
     TENDER_LINK_EXISTS: 'Тендер с такой ссылкой уже существует',
     MESSAGES_BE_EMPTY: 'Массив сообщений должен быть пустым',
     MESSAGE_BE_ARRAY: 'Сообщения должны быть массивом'
+  },
+  errors: {
+    GOTO: 'Не удалось перейти по ссылке',
+    WAIT_SUBMIT_OFFER: 'Не удалось найти кнопку "Подать оферту"',
+    CLICK_SUBMIT_OFFER: 'Не удалось кликнуть по кнопке "Подать оферту"',
+    WAIT_POSITIONS: 'Не удалось дождаться загрузки позиций',
+    EVALUATE_SCRIPT: 'Ошибка выполнения скрипта на странице'
   },
   PAGE_RELOAD_DELAY: 1000 * 60 * 15,
   MAIN_LOOP_DELAY: 1000,
@@ -24,5 +31,6 @@ module.exports = {
     'inWork',
     'messages'
   ],
-  AMOUNT_BROWSERS: 3
+  AMOUNT_BROWSERS: 3,
+  DEVELOPMENT: process.env.NODE_ENV === 'dev'
 }
