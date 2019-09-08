@@ -19,6 +19,8 @@
   "scripts": {
     "prod": "export NODE_ENV=prod && node server.js",
     "dev": "export NODE_ENV=dev && node server.js",
+    "prod-win": "set NODE_ENV=prod && node server.js",
+    "dev-win": "set NODE_ENV=dev && node server.js",
     "jsdoc": "jsdoc . -c ./jsdoc.conf.json"
   },
   "keywords": [],
