@@ -41,7 +41,7 @@ module.exports = async (pos, amount) => {
 
   const page = await browser.newPage()
 
-  page.setDefaultTimeout(20000)
+  page.setDefaultTimeout(40000)
 
   await page.goto('***')
 
@@ -96,7 +96,6 @@ module.exports = async (pos, amount) => {
         logger.debug('begin serving', tenderName)
         tenderInServing = true
 
-
         try {
           try {
             await page.goto(tenderLink)
@@ -115,7 +114,7 @@ module.exports = async (pos, amount) => {
           }
 
           try {
-            await page.click('.*** .btn')
+            await page.click('.***')
           } catch (e) {
             logger.error('.***', tenderName)
             error = CLICK_SUBMIT_OFFER
