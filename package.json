@@ -9,6 +9,7 @@
     "express-validator": "^6.2.0",
     "jsdoc": "^3.6.3",
     "lodash": "^4.17.15",
+    "log4js": "^5.1.0",
     "nodemon": "^1.19.1",
     "prettier": "^1.18.2",
     "pug": "^2.0.4",

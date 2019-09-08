@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const tenderRoute = require('./routes/tender')
-const { AMOUNT_BROWSERS } = require('./constants')
+const { AMOUNT_BROWSERS } = require('./data/constants')
 
 
 app.use(express.json())

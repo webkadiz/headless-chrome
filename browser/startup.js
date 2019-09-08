@@ -2,10 +2,11 @@ const puppeteer = require('puppeteer-core')
 
 const loginScript = require('./login')
 const serveTenderScript = require('./serve-tender')
-const {PAGE_RELOAD_DELAY, MAIN_LOOP_DELAY} = require('../constants')
-const credentials = require('../credential')
-const tenders = require('../tenders')
-const { differenceTime, millisecondsToSeconds, createError, createSuccess } = require('../functions')
+const {PAGE_RELOAD_DELAY, MAIN_LOOP_DELAY} = require('../data/constants')
+const credentials = require('../data/credential')
+const tenders = require('../data/tenders')
+const { differenceTime, millisecondsToSeconds, createError, createSuccess } = require('../util/functions')
+const logger = require('../util/logger')
 
 
 module.exports = async (pos, amount) => {
@@ -52,16 +53,18 @@ module.exports = async (pos, amount) => {
 
 
     tendersSlice.forEach(async tender => {
-      const { tenderLink, tenderSecondsBeforeEnd, tenderTimeEnd, inWork } = tender
+      const { tenderName, tenderLink, tenderSecondsBeforeEnd, tenderTimeEnd, inWork } = tender
 
       const millisecondsLeftEnd = differenceTime(tenderTimeEnd, new Date) // difference between time end and time now
       const secondsLeftEnd = millisecondsToSeconds(millisecondsLeftEnd)
 
-      console.log(secondsLeftEnd, tenderSecondsBeforeEnd)
+      console.log(secondsLeftEnd, tenderSecondsBeforeEnd, tenderName)
+      logger.debug({secondsLeftEnd, tenderSecondsBeforeEnd, tenderName, inWork, tenderInServing})
 
       if (secondsLeftEnd < tenderSecondsBeforeEnd && inWork && !tenderInServing) {
 
-        console.log('begin serving', tenderLink)
+        console.log('begin serving', tenderName)
+        logger.debug('begin serving', tenderName)
         tenderInServing = true
         
         try {
@@ -71,9 +74,11 @@ module.exports = async (pos, amount) => {
           await page.click('.*** .btn')
 
           await page.waitFor(`.***`)
-          console.log('after wait for')
+          console.log('after wait for', tenderName)
+          logger.debug('after wait for', tenderName)
           await page.evaluate(serveTenderScript, tender)
-          console.log('after evaluate')
+          console.log('after evaluate', tenderName)
+          logger.debug('after evaluate', tenderName)
 
           tender.messages.push(createSuccess('Тендер успешно отработан'))
         } catch(e) {
@@ -83,7 +88,8 @@ module.exports = async (pos, amount) => {
         
         tender.inWork = false
         tenderInServing = false
-        console.log('end serving', tenderLink)
+        console.log('end serving', tenderName)
+        logger.debug('end serving', tenderName)
 
       }
 

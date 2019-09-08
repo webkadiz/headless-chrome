@@ -37,7 +37,7 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
         const savePositionsBtn = position.q(
           `***`
         )
-        console.log(priceForUnit)
+        
         priceForUnit.value -= tenderStep
         priceForUnit.dispatchEvent(new InputEvent('input'))
 

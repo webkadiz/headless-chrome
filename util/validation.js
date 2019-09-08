@@ -1,5 +1,5 @@
 const { body } = require('express-validator')
-const tenders = require('./tenders')
+const tenders = require('../data/tenders')
 const { differenceTime } = require('./functions')
 const {
   validation: {
@@ -15,7 +15,7 @@ const {
     MESSAGES_BE_EMPTY,
     MESSAGE_BE_ARRAY
   }
-} = require('./constants')
+} = require('../data/constants')
 const timeRegExp = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d$/
 
 const validationTenderPost = [

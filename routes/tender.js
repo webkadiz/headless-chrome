@@ -5,9 +5,9 @@ const {
   validationTenderPost,
   validationTenderDelete,
   validationTenderPut
-} = require('../validation')
-const tenders = require('../tenders')
-const { TENDER_FIELDS } = require('../constants')
+} = require('../util/validation')
+const tenders = require('../data/tenders')
+const { TENDER_FIELDS } = require('../data/constants')
 const _ = require('lodash')
 
 router
