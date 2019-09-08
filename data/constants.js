@@ -31,6 +31,6 @@ module.exports = {
     'inWork',
     'messages'
   ],
-  AMOUNT_BROWSERS: 3,
+  AMOUNT_BROWSERS: process.env.NODE_ENV === 'dev' ? 1 : 3,
   DEVELOPMENT: process.env.NODE_ENV === 'dev'
 }
