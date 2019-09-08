@@ -27,29 +27,27 @@ export default class Main extends Component {
    * it is request
    * @param {string} nameOfDeleteTender - делает запрос
    */
-  requestDeleteTender = nameOfDeleteTender => {
-
-    if(this.state.neverShowDialogCheckbox) {
+  requestDeleteTender = (nameOfDeleteTender) => {
+    if (this.state.neverShowDialogCheckbox) {
       this.deleteTender(nameOfDeleteTender)
       return
     }
-    
+
     const dialogTitle = `Вы хотите удалить тендер: ${nameOfDeleteTender}?`
     console.log('request delete tender')
-    this.setState(state => ({
+    this.setState({
       isDialogOpen: true,
       dialogTitle,
       nameOfDeleteTender
-    }))
+    })
   }
 
   closeDialog = ({ detail: { action } }) => {
-
-    if(action === 'close') {
+    if (action === 'close') {
       this.setState({
         neverShowDialogCheckbox: false
       })
-    } else if(action === 'accept') {
+    } else if (action === 'accept') {
       this.deleteTender(this.state.nameOfDeleteTender)
     }
 
@@ -58,36 +56,38 @@ export default class Main extends Component {
     })
   }
 
-  deleteTender = nameOfDeleteTender => {
-
-    if(this.state.isTenderDeleteLoading) return
+  deleteTender = (nameOfDeleteTender) => {
+    if (this.state.isTenderDeleteLoading) return
 
     this.setState({
       isTenderDeleteLoading: true
     })
 
-    axios.delete('/tender', {
-      data: {
-        tenderName: nameOfDeleteTender
-      }
-    })
-    .then(() => {
-      this.context.deleteTender(nameOfDeleteTender)
+    axios
+      .delete('/tender', {
+        data: {
+          tenderName: nameOfDeleteTender
+        }
+      })
+      .then(() => {
+        this.context.deleteTender(nameOfDeleteTender)
 
-      queue.notify({
-        body: `Тендер: ${nameOfDeleteTender} успешно удален`,
-        icon: 'check_circle'
+        queue.notify({
+          body: `Тендер: ${nameOfDeleteTender} успешно удален`,
+          icon: 'check_circle'
+        })
       })
-    }).catch(() => {
-      queue.notify({
-        body: `Не удалось удалить тендер: ${nameOfDeleteTender}`,
-        icon: 'error'
+      .catch(() => {
+        queue.notify({
+          body: `Не удалось удалить тендер: ${nameOfDeleteTender}`,
+          icon: 'error'
+        })
       })
-    }).finally(() => {
-      this.setState({
-        isTenderDeleteLoading: false
+      .finally(() => {
+        this.setState({
+          isTenderDeleteLoading: false
+        })
       })
-    })
   }
 
   toggleNeverShowDialogCheckbox = () => {
@@ -97,9 +97,18 @@ export default class Main extends Component {
   }
 
   render() {
-    const { isDialogOpen, dialogTitle, neverShowDialogCheckbox, isTenderDeleteLoading } = this.state
+    const {
+      isDialogOpen,
+      dialogTitle,
+      neverShowDialogCheckbox,
+      isTenderDeleteLoading
+    } = this.state
     const { tenders } = this.context
-    const { closeDialog, toggleNeverShowDialogCheckbox, requestDeleteTender } = this
+    const {
+      closeDialog,
+      toggleNeverShowDialogCheckbox,
+      requestDeleteTender
+    } = this
     const { main, tendersWrapper, noneTenders, progressWrapper } = s
 
     return (
@@ -109,7 +118,7 @@ export default class Main extends Component {
         </Link>
         <div className={tendersWrapper}>
           <div className={progressWrapper}>
-            {isTenderDeleteLoading ? <CircularProgress size="xlarge"/> : null}
+            {isTenderDeleteLoading ? <CircularProgress size='xlarge' /> : null}
           </div>
           {tenders.length ? (
             <TenderList requestDeleteTender={requestDeleteTender} />

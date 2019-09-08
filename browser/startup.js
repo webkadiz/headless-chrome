@@ -1,5 +1,4 @@
 const puppeteer = require('puppeteer-core')
-
 const loginScript = require('./login')
 const serveTenderScript = require('./serve-tender')
 const {
@@ -22,8 +21,7 @@ module.exports = async (pos, amount) => {
   let tenderInServing = false
   let lastTimeOfReload = 0
   let tendersSlice = []
-  const pathToExtension =
-    '~/.config/google-chrome/Default/Extensions/aohghmighlieiainnegkcijnfilokake/0.10_0/main.html'
+  //const pathToExtension = '~/.config/google-chrome/Default/Extensions/aohghmighlieiainnegkcijnfilokake/0.10_0/main.html'
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -74,7 +72,7 @@ module.exports = async (pos, amount) => {
         inWork
       } = tender
 
-      const millisecondsLeftEnd = differenceTime(tenderTimeEnd, new Date()) // difference between time end and time now
+      const millisecondsLeftEnd = differenceTime(tenderTimeEnd, new Date) // difference between time end and time now
       const secondsLeftEnd = millisecondsToSeconds(millisecondsLeftEnd)
 
       console.log(secondsLeftEnd, tenderSecondsBeforeEnd, tenderName)
@@ -150,6 +148,7 @@ module.exports = async (pos, amount) => {
           tender.messages.push(createError(error))
         }
 
+        /* eslint-disable require-atomic-updates */
         tender.inWork = false
         tenderInServing = false
         console.log('end serving', tenderName)

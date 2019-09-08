@@ -1,4 +1,4 @@
-/node_modules
+node_modules/
 /credential.js
 /data/credential.js
 /public

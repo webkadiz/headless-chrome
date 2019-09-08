@@ -31,7 +31,7 @@ export default class CreationTender extends Component {
     })
   }
 
-  handleChangeCheckbox = (name, e) => {
+  handleChangeCheckbox = (name) => {
     this.setState(state => {
       state.textFields.find(
         input => input.name === name
@@ -97,7 +97,7 @@ export default class CreationTender extends Component {
 
         this.props.history.push('/')
       })
-      .catch(err => {
+      .catch(() => {
         this.endLoading()
 
         queue.notify({

@@ -15,7 +15,6 @@ import { SNACKBAR_TIMEOUT } from '@src/constants'
 
 if (process.env.NODE_ENV === 'development') {
   axios.defaults.baseURL = 'http://192.168.1.66:8000'
-  //axios.defaults.baseURL = 'http://192.168.10.125:8000'
 } else {
   axios.defaults.baseURL = ''
 }
@@ -42,7 +41,7 @@ export default class App extends React.Component {
           
           if(this.state.editableTender.tenderName)
             this.setEditableTender(this.state.editableTender.tenderName)
-        }).catch(err => {
+        }).catch(() => {
           queue.notify({
             body: 'Не удалось получить тендеры с сервера. Попробуйте перезагрузить страницу',
             icon: 'error'

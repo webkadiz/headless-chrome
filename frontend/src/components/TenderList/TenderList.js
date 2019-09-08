@@ -60,7 +60,7 @@ export default class TenderList extends Component {
           icon: 'check_circle'
         })
       })
-      .catch(err => {
+      .catch(() => {
         queue.notify({
           body: 'Не удалось удалить сообщение',
           icon: 'error'

@@ -9,7 +9,7 @@ import { Checkbox } from '@rmwc/checkbox'
 import { CircularProgress } from '@rmwc/circular-progress'
 import _ from 'lodash'
 import textFields from '@src/textFields'
-import axios from 'axios';
+import axios from 'axios'
 import { queue } from '@src/SnackbarQueue'
 
 export default class EditingTender extends Component {
@@ -32,6 +32,7 @@ export default class EditingTender extends Component {
     }
 
     this.setState(state => {
+      // eslint-disable-next-line no-unused-vars
       for(const [tenderKey, tenderValue] of Object.entries(state.editableTender)) {
         const textField = state.textFields.find(textField => textField.name === tenderKey)
         textField.value = tenderValue
@@ -59,7 +60,7 @@ export default class EditingTender extends Component {
     
   }
 
-  handleChangeCheckbox = (name, e) => {
+  handleChangeCheckbox = (name) => {
     this.setState(state => {
       state.textFields.find(
         input => input.name === name
@@ -137,7 +138,7 @@ export default class EditingTender extends Component {
         })
 
         this.props.history.push('/')
-      }).catch(err => {
+      }).catch(() => {
         this.endLoading()
 
         queue.notify({

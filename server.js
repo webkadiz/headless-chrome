@@ -1,14 +1,13 @@
 const express = require('express')
-const app = express()
 const tenderRoute = require('./routes/tender')
 const { AMOUNT_BROWSERS } = require('./data/constants')
 
+const app = express()
 
 app.use(express.json())
 app.use(express.static('public'))
 app.engine('html', require('pug').renderFile)
 app.set('view engine', 'html')
-
 
 app.use(function(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*')
@@ -29,20 +28,10 @@ app.get('*', (req, res) => {
   res.render('index')
 })
 
-
 app.listen(8000, 'localhost', () => {
   console.log('server listening')
-});
+})
 
-
-for(let i = 1; i <= AMOUNT_BROWSERS; i++) {
+for (let i = 1; i <= AMOUNT_BROWSERS; i++) {
   require('./browser/startup')(i, AMOUNT_BROWSERS)
 }
-
-
-
-
-
-
-
-

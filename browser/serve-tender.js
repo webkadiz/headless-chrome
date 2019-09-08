@@ -13,7 +13,7 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
       f = () => {}
     }
 
-    return new Promise((res, rej) => {
+    return new Promise((res) => {
       setTimeout(() => {
         f()
         res()
