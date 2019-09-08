@@ -9,6 +9,7 @@ app.use(express.static('public'))
 app.engine('html', require('pug').renderFile)
 app.set('view engine', 'html')
 
+
 app.use(function(req, res, next) {
   res.set('Access-Control-Allow-Origin', '*')
   next()

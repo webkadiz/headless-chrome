@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: frontend/src/components/TenderList/TenderList.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: frontend/src/components/TenderList/TenderList.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component, Fragment } from 'react'
+import { TenderContext } from '@src/TenderContext'
+import s from './TenderList.module.scss'
+import {
+  List,
+  ListItem,
+  ListItemText,
+  ListItemPrimaryText,
+  ListItemSecondaryText,
+  ListItemMeta,
+  ListItemGraphic,
+  ListDivider
+} from '@rmwc/list'
+import { IconButton } from '@rmwc/icon-button'
+import { Link } from 'react-router-dom'
+import { queue } from '@src/SnackbarQueue'
+import axios from 'axios'
+
+const sanitizeTime = time => new Date(time).toLocaleString()
+
+/**
+ * choose class for icon: error or success
+ * @param {String} type - can assign error or success
+ * @returns {string} Icon class
+ */
+const chooseIcon = type => {
+  if (type === 'success') return 'check_circle'
+  else if (type === 'error') return 'error'
+  return ''
+}
+
+const TenderTime = ({ tender: { tenderTimeEnd, tenderSecondsBeforeEnd } }) =>
+  sanitizeTime(new Date(tenderTimeEnd) - 1000 * tenderSecondsBeforeEnd)
+
+const MessageTime = ({ time }) => &lt;>&amp;nbsp;&amp;mdash;&amp;nbsp;{sanitizeTime(time)}&lt;/>
+
+export default class TenderList extends Component {
+  static contextType = TenderContext
+
+  deleteMessage = (tender, time) => {
+    const messageTender = {}
+
+    messageTender.messages = tender.messages.filter(
+      message => message.time !== time
+    )
+
+    messageTender.tenderOldName = tender.tenderName
+
+    axios
+      .put('/tender', messageTender)
+      .then(response => {
+        if (response.data.error) throw new Error()
+
+        this.context.updateTender(
+          response.data.result.newTender,
+          messageTender.tenderOldName
+        )
+        queue.notify({
+          body: 'Сообщение удалено',
+          icon: 'check_circle'
+        })
+      })
+      .catch(err => {
+        queue.notify({
+          body: 'Не удалось удалить сообщение',
+          icon: 'error'
+        })
+      })
+  }
+
+  render() {
+    const { tenders, setEditableTender } = this.context
+    const { requestDeleteTender } = this.props
+    const { innerList } = s
+
+    return (
+      &lt;List twoLine>
+        {tenders.map((tender, index) => (
+          &lt;Fragment key={index}>
+            &lt;ListItem>
+              &lt;ListItemText>
+                &lt;ListItemPrimaryText>{tender.tenderName}&lt;/ListItemPrimaryText>
+                &lt;ListItemSecondaryText>
+                  &lt;TenderTime tender={tender} />
+                &lt;/ListItemSecondaryText>
+              &lt;/ListItemText>
+
+              &lt;ListItemMeta
+                icon={
+                  &lt;>
+                    &lt;Link to='editing-tender'>
+                      &lt;IconButton
+                        icon='edit'
+                        onClick={setEditableTender.bind(
+                          null,
+                          tender.tenderName
+                        )}
+                      />
+                    &lt;/Link>
+                    &lt;IconButton
+                      icon='close'
+                      onClick={requestDeleteTender.bind(
+                        null,
+                        tender.tenderName
+                      )}
+                    />
+                  &lt;/>
+                }
+              />
+            &lt;/ListItem>
+            &lt;ListDivider />
+            &lt;List className={innerList}>
+              {tender.messages.map(({ type, message, time }) => (
+                &lt;ListItem key={time}>
+                  &lt;ListItemGraphic icon={chooseIcon(type)} theme={type} />
+                  &lt;ListItemSecondaryText theme={type}>
+                    {message}
+                  &lt;/ListItemSecondaryText>
+                  &lt;ListItemSecondaryText>
+                    &lt;MessageTime time={time} />
+                  &lt;/ListItemSecondaryText>
+
+                  &lt;ListItemMeta
+                    icon={
+                      &lt;IconButton
+                        icon='close'
+                        onClick={this.deleteMessage.bind(null, tender, time)}
+                      />
+                    }
+                  />
+                &lt;/ListItem>
+              ))}
+            &lt;/List>
+          &lt;/Fragment>
+        ))}
+      &lt;/List>
+    )
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#chooseIcon">chooseIcon</a></li><li><a href="global.html#createSuccess">createSuccess</a></li><li><a href="global.html#getAdditionalModulePaths">getAdditionalModulePaths</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sun Sep 08 2019 15:38:56 GMT+0300 (GMT+03:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

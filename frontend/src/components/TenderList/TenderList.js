@@ -18,6 +18,11 @@ import axios from 'axios'
 
 const sanitizeTime = time => new Date(time).toLocaleString()
 
+/**
+ * choose class for icon: error or success
+ * @param {String} type - can assign error or success
+ * @returns {string} Icon class
+ */
 const chooseIcon = type => {
   if (type === 'success') return 'check_circle'
   else if (type === 'error') return 'error'

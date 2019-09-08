@@ -7,6 +7,7 @@
     "eslint": "^6.2.2",
     "express": "^4.17.1",
     "express-validator": "^6.2.0",
+    "jsdoc": "^3.6.3",
     "lodash": "^4.17.15",
     "nodemon": "^1.19.1",
     "prettier": "^1.18.2",
@@ -15,7 +16,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "jsdoc": "jsdoc . -c ./jsdoc.conf.json"
   },
   "keywords": [],
   "author": "",

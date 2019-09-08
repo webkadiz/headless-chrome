@@ -14,9 +14,11 @@ function differenceTime(time1, time2) {
   return dateOfTime1 - dateOfTime2
 }
 
+
 function millisecondsToSeconds(milliseconds) {
   return milliseconds / 1000
 }
+
 
 const createError = message => ({
   type: 'error',
@@ -24,6 +26,10 @@ const createError = message => ({
   time: new Date
 })
 
+/**
+ * Создает сообщение о успехе
+ * @param {String} message 
+ */
 const createSuccess = message => ({
   type: 'success',
   message,
