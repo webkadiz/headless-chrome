@@ -1,6 +1,6 @@
 const express = require('express')
 const tenderRoute = require('./routes/tender')
-const { AMOUNT_BROWSERS } = require('./data/constants')
+const { AMOUNT_BROWSERS, DEVELOPMENT } = require('./data/constants')
 
 const app = express()
 
@@ -9,17 +9,21 @@ app.use(express.static('public'))
 app.engine('html', require('pug').renderFile)
 app.set('view engine', 'html')
 
-app.use(function(req, res, next) {
-  res.set('Access-Control-Allow-Origin', '*')
-  next()
-})
 
-app.options('*', (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  res.set('Access-Control-Allow-Methods', 'POST, DELETE, PUT')
-  res.set('Access-Control-Allow-Headers', 'Content-Type')
-  res.send()
-})
+if (DEVELOPMENT) {
+  app.use(function(req, res, next) {
+    res.set('Access-Control-Allow-Origin', '*')
+    next()
+  })
+  
+  app.options('*', (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*')
+    res.set('Access-Control-Allow-Methods', 'POST, DELETE, PUT')
+    res.set('Access-Control-Allow-Headers', 'Content-Type')
+    res.send()
+  })
+}
+
 
 app.use('/tender', tenderRoute)
 

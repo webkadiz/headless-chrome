@@ -35,9 +35,24 @@ const createSuccess = (message) => ({
   time: new Date()
 })
 
+async function wait(f, ms) {
+  if (typeof f === 'number') {
+    ms = f
+    f = () => {}
+  }
+
+  return new Promise((res) => {
+    setTimeout(() => {
+      f()
+      res()
+    }, ms)
+  })
+}
+
 module.exports = {
   differenceTime,
   millisecondsToSeconds,
   createError,
-  createSuccess
+  createSuccess,
+  wait
 }

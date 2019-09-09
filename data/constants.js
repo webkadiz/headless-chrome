@@ -19,9 +19,10 @@ module.exports = {
     WAIT_POSITIONS: 'Не удалось дождаться загрузки позиций',
     EVALUATE_SCRIPT: 'Ошибка выполнения скрипта на странице'
   },
-  PAGE_RELOAD_DELAY: 1000 * 60 * 0.5,
-  PAGE_AUTH_DELAY: 1000 * 60 * 0.5,
-  MAIN_LOOP_DELAY: 1000,
+  AUTH_ADVANCE: 1000 * 60, // 1 minute
+  PAGE_RELOAD_DELAY: 1000 * 60 * 20, // 20 minute
+  PAGE_AUTH_DELAY: 1000 * 60 * 20, // 20 minute
+  MAIN_LOOP_DELAY: 1000, // 1 second
   TENDER_FIELDS: [
     'tenderName',
     'tenderLink',

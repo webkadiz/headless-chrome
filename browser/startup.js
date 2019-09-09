@@ -1,8 +1,10 @@
+/* eslint-disable require-atomic-updates */
 const puppeteer = require('puppeteer-core')
 const loginScript = require('./login')
 const logoutScript = require('./logout')
 const serveTenderScript = require('./serve-tender')
 const {
+  AUTH_ADVANCE,
   PAGE_RELOAD_DELAY,
   PAGE_AUTH_DELAY,
   MAIN_LOOP_DELAY,
@@ -15,12 +17,13 @@ const {
   differenceTime,
   millisecondsToSeconds,
   createError,
-  createSuccess
+  createSuccess,
+  wait
 } = require('../util/functions')
 const logger = require('../util/logger')
 
 module.exports = async (pos, amount) => {
-  let tenderInServing = false
+  let isPageBusy = false
   let lastTimeOfReload = 0
   let lastTimeOfAuth = 0
   let tendersSlice = []
@@ -52,61 +55,77 @@ module.exports = async (pos, amount) => {
     const differenceBetweenReload = differenceTime(new Date(), lastTimeOfReload)
     const differenceBetweenAuth = differenceTime(new Date(), lastTimeOfAuth)
 
-    if (differenceBetweenReload > PAGE_RELOAD_DELAY && !tenderInServing) {
-      tenderInServing = true
-
+    if (differenceBetweenReload > PAGE_RELOAD_DELAY && !isPageBusy) {
       console.log('page reload')
+      logger.info('page reload')
+      
+      isPageBusy = true
+
       lastTimeOfReload = +new Date()
+
       try {
         await page.reload()
       } catch (e) {
         logger.error('page reload failed')
       }
 
-      tenderInServing = false
+      isPageBusy = false
       
     }
 
-    if(differenceBetweenAuth > PAGE_AUTH_DELAY && !tenderInServing) {
-      let minTime = Infinity
-      let curTender = {}
-      tenderInServing = true
+    if(differenceBetweenAuth > PAGE_AUTH_DELAY && !isPageBusy) {
+      let closlyTime = Infinity
+      let closlyTender
+      isPageBusy = true
       
-
+      // find closelyTender
       tenders.forEach(tender => {
-        if(new Date(tender.tenderTimeEnd) < minTime) {
-          minTime = +new Date(tender.tenderTimeEnd)
-          curTender = tender
+        if(new Date(tender.tenderTimeEnd) < closlyTime) {
+          closlyTime = +new Date(tender.tenderTimeEnd)
+          closlyTender = tender
         }
       })
 
 
-      console.log('min time', minTime)
+      console.log('min time', closlyTime)
+      logger.info('min time', closlyTime)
       console.log('auth start')
-      const timeDif = differenceTime(curTender.tenderTimeEnd, new Date)
-      const secondsLeftEnd = millisecondsToSeconds(timeDif)
+      logger.info('auth start')
+      
+      const millisecondsBeforeTenderEnd = differenceTime(closlyTender.tenderTimeEnd, new Date)
+      const secondsBeforeTenderEnd = millisecondsToSeconds(millisecondsBeforeTenderEnd)
+      console.log(secondsBeforeTenderEnd, closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE, 'auth')
 
-      if (secondsLeftEnd < curTender.tenderSecondsBeforeEnd + 60) {
+      if (secondsBeforeTenderEnd < closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE) {
         lastTimeOfAuth= +new Date()
 
         try {
-        await page.evaluate(logoutScript)
-        
+          await page.evaluate(logoutScript)    
         } catch(e) {
+          logger.error('failed logout')
           console.log('failed logout')
         }
 
         console.log('begin login')
-        await page.goto('***')
-        await page.waitFor(1000)
-        await page.evaluate(loginScript, credentials)
+
+        logger.info('begin login')
+
+        try {
+          await page.goto('***')
+          await wait(1000)
+          await page.evaluate(loginScript, credentials)
+          await wait(1000)
+        } catch {
+          console.log('login failed')
+          logger.info('login failed')
+        }
 
       }
 
       
-
+      logger.info('auth end')
       console.log('auth end')
-      tenderInServing = false
+      isPageBusy = false
 
     }
 
@@ -124,42 +143,28 @@ module.exports = async (pos, amount) => {
         inWork
       } = tender
 
-      const millisecondsLeftEnd = differenceTime(tenderTimeEnd, new Date) // difference between time end and time now
-      const secondsLeftEnd = millisecondsToSeconds(millisecondsLeftEnd)
+      const millisecondsBeforeTenderEnd = differenceTime(tenderTimeEnd, new Date) // difference between time end and time now
+      const secondsBeforeTenderEnd = millisecondsToSeconds(millisecondsBeforeTenderEnd)
 
-      console.log(secondsLeftEnd, tenderSecondsBeforeEnd, tenderName)
+      console.log(secondsBeforeTenderEnd, tenderSecondsBeforeEnd, tenderName)
       logger.debug({
-        secondsLeftEnd,
+        secondsBeforeTenderEnd,
         tenderSecondsBeforeEnd,
         tenderName,
         inWork,
-        tenderInServing
+        tenderInServing: isPageBusy
       })
 
-      // if(secondsLeftEnd < tenderSecondsBeforeEnd + 60 && !tenderInServing && !authInServing) {
-        
-      //   authInServing = true
-      //   tenderInServing = true
-
-      //   console.log('begin auth', tenderName)
-
-        
-
-      //   authInServing = false
-      //   tenderInServing = false
-
-      //   console.log('end auth', tenderName)
-      // }
 
       if (
-        secondsLeftEnd < tenderSecondsBeforeEnd &&
+        secondsBeforeTenderEnd < tenderSecondsBeforeEnd &&
         inWork &&
-        !tenderInServing
+        !isPageBusy
       ) {
         let error
         console.log('begin serving', tenderName)
         logger.debug('begin serving', tenderName)
-        tenderInServing = true
+        isPageBusy = true
 
         try {
           try {
@@ -215,9 +220,8 @@ module.exports = async (pos, amount) => {
           tender.messages.push(createError(error))
         }
 
-        /* eslint-disable require-atomic-updates */
         tender.inWork = false
-        tenderInServing = false
+        isPageBusy = false
         console.log('end serving', tenderName)
         logger.debug('end serving', tenderName)
       }
