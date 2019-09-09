@@ -9,7 +9,13 @@ const {
   PAGE_AUTH_DELAY,
   MAIN_LOOP_DELAY,
   DEVELOPMENT,
-  errors: { GOTO, WAIT_SUBMIT_OFFER, CLICK_SUBMIT_OFFER, WAIT_POSITIONS, EVALUATE_SCRIPT }
+  errors: {
+    GOTO,
+    WAIT_SUBMIT_OFFER,
+    CLICK_SUBMIT_OFFER,
+    WAIT_POSITIONS,
+    EVALUATE_SCRIPT
+  }
 } = require('../data/constants')
 const credentials = require('../data/credential')
 const tenders = require('../data/tenders')
@@ -54,7 +60,7 @@ module.exports = async (pos, amount) => {
     if (differenceBetweenReload > PAGE_RELOAD_DELAY && !isPageBusy) {
       console.log('page reload')
       logger.info('page reload')
-      
+
       isPageBusy = true
 
       lastTimeOfReload = +new Date()
@@ -67,39 +73,49 @@ module.exports = async (pos, amount) => {
       }
 
       isPageBusy = false
-      
     }
 
-    if(differenceBetweenAuth > PAGE_AUTH_DELAY && !isPageBusy) {
+    if (differenceBetweenAuth > PAGE_AUTH_DELAY && !isPageBusy) {
       let closlyTime = Infinity
       let closlyTender
       isPageBusy = true
-      
+
       // find closelyTender
       tenders.forEach(tender => {
-        if(new Date(tender.tenderTimeEnd) < closlyTime) {
+        if (new Date(tender.tenderTimeEnd) < closlyTime && tender.inWork) {
           closlyTime = +new Date(tender.tenderTimeEnd)
           closlyTender = tender
         }
       })
 
-
       console.log('min time', closlyTime)
       logger.info('min time', closlyTime)
       console.log('auth start')
       logger.info('auth start')
-      
-      const millisecondsBeforeTenderEnd = differenceTime(closlyTender.tenderTimeEnd, new Date)
-      const secondsBeforeTenderEnd = millisecondsToSeconds(millisecondsBeforeTenderEnd)
-      console.log(secondsBeforeTenderEnd, closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE, 'auth')
 
-      if (secondsBeforeTenderEnd < closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE) {
-        lastTimeOfAuth= +new Date()
+      const millisecondsBeforeTenderEnd = differenceTime(
+        closlyTender.tenderTimeEnd,
+        new Date()
+      )
+      const secondsBeforeTenderEnd = millisecondsToSeconds(
+        millisecondsBeforeTenderEnd
+      )
+      console.log(
+        secondsBeforeTenderEnd,
+        closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE,
+        'auth'
+      )
+
+      if (
+        secondsBeforeTenderEnd <
+        closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE
+      ) {
+        lastTimeOfAuth = +new Date()
 
         try {
           await page.evaluate(logoutScript)
-          await wait(1000) 
-        } catch(e) {
+          await wait(1000)
+        } catch (e) {
           logger.error('failed logout')
           console.log('failed logout')
         }
@@ -117,14 +133,11 @@ module.exports = async (pos, amount) => {
           console.log('login failed')
           logger.info('login failed')
         }
-
       }
 
-      
       logger.info('auth end')
       console.log('auth end')
       isPageBusy = false
-
     }
 
     const amountPart = Math.floor(tenders.length / amount)
@@ -133,30 +146,26 @@ module.exports = async (pos, amount) => {
     else tendersSlice = tenders.slice((pos - 1) * amountPart, pos * amountPart)
 
     tendersSlice.forEach(async tender => {
-      const {
-        tenderName,
-        tenderLink,
-        tenderSecondsBeforeEnd,
-        tenderTimeEnd,
-        inWork
-      } = tender
+      const { tenderName } = tender
 
-      const millisecondsBeforeTenderEnd = differenceTime(tenderTimeEnd, new Date) // difference between time end and time now
-      const secondsBeforeTenderEnd = millisecondsToSeconds(millisecondsBeforeTenderEnd)
+      const millisecondsBeforeTenderEnd = differenceTime(
+        tender.tenderTimeEnd,
+        new Date()
+      ) // difference between time end and time now
+      const secondsBeforeTenderEnd = millisecondsToSeconds(
+        millisecondsBeforeTenderEnd
+      )
 
-      console.log(secondsBeforeTenderEnd, tenderSecondsBeforeEnd, tenderName)
-      logger.debug({
+      console.log(
         secondsBeforeTenderEnd,
-        tenderSecondsBeforeEnd,
-        tenderName,
-        inWork,
-        tenderInServing: isPageBusy
-      })
-
+        tender.tenderSecondsBeforeEnd,
+        tenderName
+      )
+      logger.debug({ ...tender, isPageBusy, secondsBeforeTenderEnd })
 
       if (
-        secondsBeforeTenderEnd < tenderSecondsBeforeEnd &&
-        inWork &&
+        secondsBeforeTenderEnd < tender.tenderSecondsBeforeEnd &&
+        tender.inWork &&
         !isPageBusy
       ) {
         let error
@@ -166,7 +175,7 @@ module.exports = async (pos, amount) => {
 
         try {
           try {
-            await page.goto(tenderLink)
+            await page.goto(tender.tenderLink)
           } catch (e) {
             logger.error('goto failed', tenderName)
             error = GOTO
