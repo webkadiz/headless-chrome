@@ -11,8 +11,8 @@ module.exports = async () => {
   const logoutBtn = document.q('a[ng-click="exit();"]')
   logoutBtn.click()
 
-  await new Promise((res, rej) => {
-    setTimeout(() => res(), 2000)
-  })
+  // await new Promise((res, rej) => {
+  //   setTimeout(() => res(), 2000)
+  // })
 
 }

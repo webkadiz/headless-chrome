@@ -45,11 +45,7 @@ module.exports = async (pos, amount) => {
 
   const page = await browser.newPage()
 
-  page.setDefaultTimeout(20000)
-
-  await page.goto('***')
-
-  await page.evaluate(loginScript, credentials)
+  page.setDefaultTimeout(30000)
 
   setInterval(async () => {
     const differenceBetweenReload = differenceTime(new Date(), lastTimeOfReload)
@@ -65,6 +61,7 @@ module.exports = async (pos, amount) => {
 
       try {
         await page.reload()
+        await wait(1000)
       } catch (e) {
         logger.error('page reload failed')
       }
@@ -100,7 +97,8 @@ module.exports = async (pos, amount) => {
         lastTimeOfAuth= +new Date()
 
         try {
-          await page.evaluate(logoutScript)    
+          await page.evaluate(logoutScript)
+          await wait(1000) 
         } catch(e) {
           logger.error('failed logout')
           console.log('failed logout')
