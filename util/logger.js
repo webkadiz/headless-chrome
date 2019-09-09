@@ -5,7 +5,7 @@ log4js.configure({
     app: {
       type: 'file',
       filename: 'log/app.log',
-      maxLogSize: 1024 * 100,
+      maxLogSize: 1024 * 1000,
       backups: 25,
       keepFileExt: true
     }
