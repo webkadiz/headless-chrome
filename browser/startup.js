@@ -1,8 +1,10 @@
 const puppeteer = require('puppeteer-core')
 const loginScript = require('./login')
+const logoutScript = require('./logout')
 const serveTenderScript = require('./serve-tender')
 const {
   PAGE_RELOAD_DELAY,
+  PAGE_AUTH_DELAY,
   MAIN_LOOP_DELAY,
   DEVELOPMENT,
   errors: { GOTO, WAIT_SUBMIT_OFFER, CLICK_SUBMIT_OFFER, WAIT_POSITIONS, EVALUATE_SCRIPT }
@@ -20,6 +22,7 @@ const logger = require('../util/logger')
 module.exports = async (pos, amount) => {
   let tenderInServing = false
   let lastTimeOfReload = 0
+  let lastTimeOfAuth = 0
   let tendersSlice = []
   //const pathToExtension = '~/.config/google-chrome/Default/Extensions/aohghmighlieiainnegkcijnfilokake/0.10_0/main.html'
 
@@ -39,7 +42,7 @@ module.exports = async (pos, amount) => {
 
   const page = await browser.newPage()
 
-  page.setDefaultTimeout(40000)
+  page.setDefaultTimeout(20000)
 
   await page.goto('***')
 
@@ -47,8 +50,11 @@ module.exports = async (pos, amount) => {
 
   setInterval(async () => {
     const differenceBetweenReload = differenceTime(new Date(), lastTimeOfReload)
+    const differenceBetweenAuth = differenceTime(new Date(), lastTimeOfAuth)
 
     if (differenceBetweenReload > PAGE_RELOAD_DELAY && !tenderInServing) {
+      tenderInServing = true
+
       console.log('page reload')
       lastTimeOfReload = +new Date()
       try {
@@ -56,6 +62,52 @@ module.exports = async (pos, amount) => {
       } catch (e) {
         logger.error('page reload failed')
       }
+
+      tenderInServing = false
+      
+    }
+
+    if(differenceBetweenAuth > PAGE_AUTH_DELAY && !tenderInServing) {
+      let minTime = Infinity
+      let curTender = {}
+      tenderInServing = true
+      
+
+      tenders.forEach(tender => {
+        if(new Date(tender.tenderTimeEnd) < minTime) {
+          minTime = +new Date(tender.tenderTimeEnd)
+          curTender = tender
+        }
+      })
+
+
+      console.log('min time', minTime)
+      console.log('auth start')
+      const timeDif = differenceTime(curTender.tenderTimeEnd, new Date)
+      const secondsLeftEnd = millisecondsToSeconds(timeDif)
+
+      if (secondsLeftEnd < curTender.tenderSecondsBeforeEnd + 60) {
+        lastTimeOfAuth= +new Date()
+
+        try {
+        await page.evaluate(logoutScript)
+        
+        } catch(e) {
+          console.log('failed logout')
+        }
+
+        console.log('begin login')
+        await page.goto('***')
+        await page.waitFor(1000)
+        await page.evaluate(loginScript, credentials)
+
+      }
+
+      
+
+      console.log('auth end')
+      tenderInServing = false
+
     }
 
     const amountPart = Math.floor(tenders.length / amount)
@@ -83,6 +135,21 @@ module.exports = async (pos, amount) => {
         inWork,
         tenderInServing
       })
+
+      // if(secondsLeftEnd < tenderSecondsBeforeEnd + 60 && !tenderInServing && !authInServing) {
+        
+      //   authInServing = true
+      //   tenderInServing = true
+
+      //   console.log('begin auth', tenderName)
+
+        
+
+      //   authInServing = false
+      //   tenderInServing = false
+
+      //   console.log('end auth', tenderName)
+      // }
 
       if (
         secondsLeftEnd < tenderSecondsBeforeEnd &&
