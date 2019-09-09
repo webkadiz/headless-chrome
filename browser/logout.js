@@ -7,12 +7,6 @@ module.exports = async () => {
     return this.querySelectorAll(selector)
   }
 
-  console.log('begin')
   const logoutBtn = document.q('a[ng-click="exit();"]')
   logoutBtn.click()
-
-  // await new Promise((res, rej) => {
-  //   setTimeout(() => res(), 2000)
-  // })
-
 }

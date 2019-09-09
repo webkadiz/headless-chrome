@@ -88,50 +88,52 @@ module.exports = async (pos, amount) => {
         }
       })
 
-      console.log('min time', closlyTime)
-      logger.info('min time', closlyTime)
-      console.log('auth start')
-      logger.info('auth start')
-
-      const millisecondsBeforeTenderEnd = differenceTime(
-        closlyTender.tenderTimeEnd,
-        new Date()
-      )
-      const secondsBeforeTenderEnd = millisecondsToSeconds(
-        millisecondsBeforeTenderEnd
-      )
-      console.log(
-        secondsBeforeTenderEnd,
-        closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE,
-        'auth'
-      )
-
-      if (
-        secondsBeforeTenderEnd <
-        closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE
-      ) {
-        lastTimeOfAuth = +new Date()
-
-        try {
-          await page.evaluate(logoutScript)
-          await wait(1000)
-        } catch (e) {
-          logger.error('failed logout')
-          console.log('failed logout')
-        }
-
-        console.log('begin login')
-
-        logger.info('begin login')
-
-        try {
-          await page.goto('***')
-          await wait(1000)
-          await page.evaluate(loginScript, credentials)
-          await wait(1000)
-        } catch {
-          console.log('login failed')
-          logger.info('login failed')
+      if (closlyTender) {
+        console.log('min time', closlyTime)
+        logger.info('min time', closlyTime)
+        console.log('auth start')
+        logger.info('auth start')
+  
+        const millisecondsBeforeTenderEnd = differenceTime(
+          closlyTender.tenderTimeEnd,
+          new Date()
+        )
+        const secondsBeforeTenderEnd = millisecondsToSeconds(
+          millisecondsBeforeTenderEnd
+        )
+  
+        console.log(
+          secondsBeforeTenderEnd,
+          closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE,
+          'auth'
+        )
+  
+        if (
+          secondsBeforeTenderEnd <
+          closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE
+        ) {
+          lastTimeOfAuth = +new Date()
+  
+          try {
+            await page.evaluate(logoutScript)
+            await wait(1000)
+          } catch (e) {
+            logger.error('failed logout')
+            console.log('failed logout')
+          }
+  
+          console.log('begin login')
+          logger.info('begin login')
+  
+          try {
+            await page.goto('***')
+            await wait(1000)
+            await page.evaluate(loginScript, credentials)
+            await wait(1000)
+          } catch {
+            console.log('login failed')
+            logger.info('login failed')
+          }
         }
       }
 
