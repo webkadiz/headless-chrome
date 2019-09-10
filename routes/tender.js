@@ -6,86 +6,77 @@ const {
   validationTenderDelete,
   validationTenderPut
 } = require('../util/validation')
-const tenders = require('../data/tenders')
 const { TENDER_FIELDS } = require('../data/constants')
-const logger = require('../util/logger')
+const { loggerRoute } = require('../util/logger')
+const Tender = require('../models/tender')
 const _ = require('lodash')
 
 router
   .route('/')
   .get((req, res) => {
-    res.json({
-      tenders
-    })
+    Tender.find({})
+      .then(tenders => {
+        res.json({ tenders })
+      })
+      .catch(err => {
+        loggerRoute.error('get error', err)
+        res.json({ error: true })
+      })
   })
   .post(validationTenderPost, (req, res) => {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-      logger.error(errors, 'error in post request')
+      loggerRoute.info('post', errors)
       res.json(errors)
       return
     }
 
-    const tender = _.pick(req.body, TENDER_FIELDS)
-
-    tenders.push(tender)
-
-    res.json({
-      result: true
-    })
+    Tender.create(_.pick(req.body, TENDER_FIELDS))
+      .then(tender => {
+        res.json(tender)
+      })
+      .catch(err => {
+        loggerRoute.error('post', err)
+        res.json({ error: true })
+      })
   })
-  .put(validationTenderPut, (req, res, next) => {
-    console.log('put')
+  .put(validationTenderPut, (req, res) => {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-      logger.error(errors, 'error in put request')
+      loggerRoute.info('put', errors)
       res.json(errors)
       return
     }
 
-    const reqTender = _.pick(req.body, TENDER_FIELDS)
-
-    const indexOldTender = tenders.findIndex(
-      tender => tender.tenderName === req.body.tenderOldName
-    )
-    const oldTender = tenders.find(
-      tender => tender.tenderName === req.body.tenderOldName
-    )
-
-    const newTender = Object.assign({}, oldTender, reqTender)
-    console.log("TCL: newTender", newTender)
-
-    tenders.splice(indexOldTender, 1, newTender)
-
-    res.json({
-      result: {newTender}
-    })
-
-    next()
+    Tender.findOneAndUpdate({ tenderName: req.body.tenderOldName }, _.pick(req.body, TENDER_FIELDS))
+      .then(tender => {
+        res.json(tender)
+      })
+      .catch(err => {
+        loggerRoute.error('put', err)
+        res.json({ error: true })
+      })
   })
 
   .delete(validationTenderDelete, (req, res) => {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-      logger.error(errors, 'error in delete request')
+      loggerRoute.error('delete', errors)
       res.json(errors)
       return
     }
 
-    const { tenderName } = req.body
-
-    const tenderIndex = tenders.findIndex(
-      tender => tender.tenderName === tenderName
-    )
-
-    tenders.splice(tenderIndex, 1)
-
-    res.json({
-      result: true
-    })
+    Tender.deleteOne({ tenderName: req.body.tenderName })
+      .then(tender => {
+        res.json(tender)
+      })
+      .catch(err => {
+        loggerRoute.error('delete', err)
+        errors.json({ error: true })
+      })
   })
 
 module.exports = router

@@ -34,5 +34,6 @@ module.exports = {
     'messages'
   ],
   AMOUNT_BROWSERS: process.env.NODE_ENV === 'dev' ? 1 : 3,
-  DEVELOPMENT: process.env.NODE_ENV === 'dev'
+  DEVELOPMENT: process.env.NODE_ENV === 'dev',
+  MONGOOSE_CONNECTION_URL: 'mongodb://localhost/tender'
 }

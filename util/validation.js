@@ -1,5 +1,4 @@
 const { body } = require('express-validator')
-const tenders = require('../data/tenders')
 const { differenceTime } = require('./functions')
 const {
   validation: {
@@ -16,6 +15,7 @@ const {
     MESSAGE_BE_ARRAY
   }
 } = require('../data/constants')
+const Tender = require('../models/tender')
 const timeRegExp = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d$/
 
 const validationTenderPost = [
@@ -28,7 +28,11 @@ const validationTenderPost = [
     .isEmpty()
     .withMessage(BE_NOT_EMPTY)
     .bail()
-    .custom(value => !tenders.find(tender => tender.tenderName === value))
+    .custom(value =>
+      Tender.find({ tenderName: value }).then(
+        tender => tender && Promise.reject()
+      )
+    )
     .withMessage(TENDER_EXISTS),
   body('tenderLink')
     .isString()
@@ -42,7 +46,11 @@ const validationTenderPost = [
     .custom(value => value.startsWith('***'))
     .withMessage(INVALID_LINK)
     .bail()
-    .custom(value => !tenders.find(tender => tender.tenderLink === value))
+    .custom(value =>
+      Tender.findOne({ tenderLink: value }).then(
+        tender => tender && Promise.reject()
+      )
+    )
     .withMessage(TENDER_LINK_EXISTS),
   body('tenderTimeEnd')
     .isString()
@@ -86,7 +94,11 @@ const validationTenderPut = [
     .isEmpty()
     .withMessage(BE_NOT_EMPTY)
     .bail()
-    .custom(value => tenders.find(tender => tender.tenderName === value))
+    .custom(value =>
+      Tender.findOne({ tenderName: value }).then(
+        tender => !tender && Promise.reject()
+      )
+    )
     .withMessage('Не найден тендер'),
   body('tenderName')
     .isString()
@@ -97,11 +109,13 @@ const validationTenderPut = [
     .isEmpty()
     .withMessage(BE_NOT_EMPTY)
     .bail()
-    .custom(
-      (value, { req }) =>
-        !tenders.find(tender => tender.tenderName === value) ||
-        tenders.find(tender => tender.tenderName === value).tenderName ===
-          req.body.tenderOldName
+    .custom((value, { req }) =>
+      Tender.findOne({ tenderName: value }).then(
+        tender =>
+          tender &&
+          tender.tenderName !== req.body.tenderOldName &&
+          Promise.reject()
+      )
     )
     .withMessage(TENDER_EXISTS)
     .optional(),
@@ -117,11 +131,13 @@ const validationTenderPut = [
     .custom(value => value.startsWith('***'))
     .withMessage(INVALID_LINK)
     .bail()
-    .custom(
-      (value, { req }) =>
-        !tenders.find(tender => tender.tenderLink === value) ||
-        tenders.find(tender => tender.tenderLink === value).tenderName ===
-          req.body.tenderOldName
+    .custom((value, { req }) =>
+      Tender.findOne({ tenderLink: value }).then(
+        tender =>
+          tender &&
+          tender.tenderName !== req.body.tenderOldName &&
+          Promise.reject()
+      )
     )
     .withMessage(TENDER_LINK_EXISTS)
     .optional(),
@@ -160,11 +176,10 @@ const validationTenderPut = [
     .isArray()
     .withMessage(MESSAGE_BE_ARRAY)
     .bail()
-    .custom(
-      (value, { req }) =>
-        value.length <=
-        tenders.find(tender => tender.tenderName === req.body.tenderOldName)
-          .messages.length
+    .custom((value, { req }) =>
+      Tender.findOne({ tenderName: req.body.tenderOldName }).then(
+        tender => value.length > (tender && tender.messages.length) && Promise.reject()
+      )
     )
     .optional(),
   body('messages.*.type')
@@ -203,7 +218,11 @@ const validationTenderDelete = [
     .isEmpty()
     .withMessage(BE_NOT_EMPTY)
     .bail()
-    .custom(value => tenders.find(tender => tender.tenderName === value))
+    .custom(value =>
+      Tender.findOne({ tenderName: value }).then(
+        tender => !tender && Promise.reject()
+      )
+    )
     .withMessage()
 ]
 
