@@ -52,7 +52,7 @@ export default class TenderList extends Component {
         if (response.data.error) throw new Error()
 
         this.context.updateTender(
-          response.data.result.newTender,
+          response.data.result,
           messageTender.tenderOldName
         )
         queue.notify({
