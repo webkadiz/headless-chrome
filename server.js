@@ -10,7 +10,7 @@ const app = express()
 
 mongoose
   .connect(MONGOOSE_CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-  .catch(() => process.exit())
+  .catch(() => process.exit(1))
 
 app.use(express.json())
 app.use(express.static('public'))

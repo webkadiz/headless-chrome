@@ -131,7 +131,7 @@ module.exports = async (pos, amount) => {
             await wait(1000)
             await page.evaluate(loginScript, credentials)
             await wait(1000)
-          } catch {
+          } catch (e) {
             loggerMain.info('auth login failed')
           }
 
