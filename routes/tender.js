@@ -33,8 +33,8 @@ router
     }
 
     Tender.create(_.pick(req.body, TENDER_FIELDS))
-      .then(tender => {
-        res.json(tender)
+      .then(() => {
+        res.json({ result: true })
       })
       .catch(err => {
         loggerRoute.error('post', err)
@@ -51,8 +51,8 @@ router
     }
 
     Tender.findOneAndUpdate({ tenderName: req.body.tenderOldName }, _.pick(req.body, TENDER_FIELDS))
-      .then(tender => {
-        res.json(tender)
+      .then(() => {
+        res.json({ result: true })
       })
       .catch(err => {
         loggerRoute.error('put', err)
@@ -70,8 +70,8 @@ router
     }
 
     Tender.deleteOne({ tenderName: req.body.tenderName })
-      .then(tender => {
-        res.json(tender)
+      .then(() => {
+        res.json({ result: true })
       })
       .catch(err => {
         loggerRoute.error('delete', err)
