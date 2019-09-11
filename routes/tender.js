@@ -16,7 +16,7 @@ router
   .get((req, res) => {
     Tender.find({})
       .then(tenders => {
-        res.json({ tenders })
+        res.json({ tenders: tenders.map(tender => _.pick(tender, TENDER_FIELDS)) })
       })
       .catch(err => {
         loggerRoute.error('get error', err)

@@ -28,10 +28,8 @@ const validationTenderPost = [
     .isEmpty()
     .withMessage(BE_NOT_EMPTY)
     .bail()
-    .custom(value =>
-      Tender.find({ tenderName: value }).then(
-        tender => tender && Promise.reject()
-      )
+    .custom(async value =>
+      !(await Tender.exists({ tenderName: value }))
     )
     .withMessage(TENDER_EXISTS),
   body('tenderLink')
@@ -182,7 +180,7 @@ const validationTenderPut = [
       )
     )
     .optional(),
-  body('messages.*.type')
+  body('messages.*.category')
     .isString()
     .withMessage(BE_STRING)
     .bail()

@@ -20,7 +20,7 @@ function millisecondsToSeconds(milliseconds) {
 }
 
 const createError = (message) => ({
-  type: 'error',
+  category: 'error',
   message,
   time: new Date()
 })
@@ -30,7 +30,7 @@ const createError = (message) => ({
  * @param {String} message
  */
 const createSuccess = (message) => ({
-  type: 'success',
+  category: 'success',
   message,
   time: new Date()
 })

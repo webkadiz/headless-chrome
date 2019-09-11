@@ -217,7 +217,6 @@ module.exports = async (pos, amount) => {
 
           console.log('tender success', tenderName)
           loggerMain.info('tender success', tenderName)
-
           tender.messages.push(createSuccess('Тендер успешно отработан'))
         } catch (e) {
           if (!error) error = 'Тендер отработал с ошибкой'
@@ -227,7 +226,7 @@ module.exports = async (pos, amount) => {
         }
 
         try {
-          await Tender.updateOne({ tenderName }, { inWork: true, messages: tender.messages })
+          await Tender.updateOne({ tenderName: tenderName }, { inWork: false, messages: tender.messages })
         } catch(e) {
           loggerMain.error('update tender fail in serving')
         }

@@ -110,10 +110,10 @@ export default class TenderList extends Component {
             </ListItem>
             <ListDivider />
             <List className={innerList}>
-              {tender.messages.map(({ type, message, time }) => (
+              {tender.messages.map(({ category, message, time }) => (
                 <ListItem key={time}>
-                  <ListItemGraphic icon={chooseIcon(type)} theme={type} />
-                  <ListItemSecondaryText theme={type}>
+                  <ListItemGraphic icon={chooseIcon(category)} theme={category} />
+                  <ListItemSecondaryText theme={category}>
                     {message}
                   </ListItemSecondaryText>
                   <ListItemSecondaryText>

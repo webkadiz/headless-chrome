@@ -10,7 +10,7 @@ const schema = mongoose.Schema({
   inWork: Boolean,
   messages: [
     {
-      type: String,
+      category: String,
       message: String,
       time: Date
     }
