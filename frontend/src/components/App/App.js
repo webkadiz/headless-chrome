@@ -10,7 +10,7 @@ import { SnackbarQueue } from '@rmwc/snackbar'
 import { queue } from '@src/SnackbarQueue'
 import axios from 'axios'
 
-import { SNACKBAR_TIMEOUT } from '@src/constants'
+import { SNACKBAR_DELAY, PULLING_DELAY, SNACKBAR_PULLING_DELAY } from '@src/constants'
 
 
 if (process.env.NODE_ENV === 'development') {
@@ -28,8 +28,8 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    console.log('app mount')
-    
+    let lastSnackbarDate = 0
+
     this.queryIntervalID = setInterval(() => {
 
       axios('/tender')
@@ -42,15 +42,19 @@ export default class App extends React.Component {
           if(this.state.editableTender.tenderName)
             this.setEditableTender(this.state.editableTender.tenderName)
         }).catch(() => {
-          queue.notify({
-            body: 'Не удалось получить тендеры с сервера. Попробуйте перезагрузить страницу',
-            icon: 'error'
-          })
+          if (Date.now() - lastSnackbarDate > SNACKBAR_PULLING_DELAY) {
+            lastSnackbarDate = Date.now()
+
+            queue.notify({
+              body: 'Не удалось получить тендеры с сервера. Попробуйте перезагрузить страницу',
+              icon: 'error'
+            })
+          }
         })
-    }, 3000)
+    }, PULLING_DELAY)
   }
 
-  componentWillMount() {
+  componentWillUnmount() {
     clearInterval(this.queryIntervalID)
   }
 
@@ -115,7 +119,7 @@ export default class App extends React.Component {
           <Route exact path='/' component={Main} />
           <Route path='/creation-tender' component={CreationTender} />
           <Route path='/editing-tender' component={EditingTender} />
-          <SnackbarQueue messages={queue.messages} timeout={SNACKBAR_TIMEOUT} />
+          <SnackbarQueue messages={queue.messages} timeout={SNACKBAR_DELAY} />
         </TenderContext.Provider>
       </div>
     )

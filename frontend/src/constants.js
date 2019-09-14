@@ -1,2 +1,4 @@
 
-export const SNACKBAR_TIMEOUT = 3000
+export const SNACKBAR_DELAY = 3000
+export const PULLING_DELAY = 1000
+export const SNACKBAR_PULLING_DELAY = 1000 * 20
