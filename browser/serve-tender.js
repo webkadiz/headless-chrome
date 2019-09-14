@@ -13,7 +13,7 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
       f = () => {}
     }
 
-    return new Promise((res) => {
+    return new Promise(res => {
       setTimeout(() => {
         f()
         res()
@@ -21,7 +21,6 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
     })
   }
 
-  
   function positionsLoop() {
     let i = 0
     const positions = document.qAll('.panel')
@@ -37,7 +36,7 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
         const savePositionsBtn = position.q(
           `***`
         )
-        
+
         priceForUnit.value -= tenderStep
         priceForUnit.dispatchEvent(new InputEvent('input'))
 
@@ -58,19 +57,38 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
   try {
     await new Promise(positionsLoop())
   } catch (e) {
-    console.log('error', e)
+    return {
+      error: 'Была ошибка в обработке позиций'
+    }
   }
 
   const sum = +document.q('#***').value
   const areement = document.q('#***')
   const saveBtn = document.q(`***`)
 
-  if (sum < tenderMinPrice) return
+  if (sum < tenderMinPrice)
+    return {
+      success: 'Цена тендера оказалась меньше минимальной'
+    }
 
   areement.checked = true
   areement.dispatchEvent(new InputEvent('click'))
 
-  await wait(() => saveBtn.click(), 100)
+  try {
+    await wait(() => saveBtn.click(), 100)
+  } catch (e) {
+    return {
+      error: 'Не удалось нажать на "сохранить позиции"'
+    }
+  }
 
-  await wait(100)
+  try {
+    await wait(100)
+  } catch (e) {
+    return {
+      error: 'Ошибка приложения'
+    }
+  }
+
+  return { success: 'Тендер успешно отработал' }
 }

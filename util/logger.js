@@ -5,7 +5,7 @@ const backups = 25
 const keepFileExt = true
 const level = 'debug'
 
-const appendersConfig = {type, maxLogSize, backups, keepFileExt}
+const appendersConfig = { type, maxLogSize, backups, keepFileExt }
 
 log4js.configure({
   appenders: {
@@ -24,24 +24,18 @@ log4js.configure({
     route: {
       filename: 'log/route.log',
       ...appendersConfig
-    },
-    error: {
-      filename: 'log/error.log',
-      ...appendersConfig
     }
   },
   categories: {
     default: { appenders: ['default'], level },
     main: { appenders: ['main'], level },
     tender: { appenders: ['tender'], level },
-    route: { appenders: ['route'], level },
-    error: { appenders: ['error'], level }
+    route: { appenders: ['route'], level }
   }
 })
 
 const loggerMain = log4js.getLogger('main')
 const loggerTender = log4js.getLogger('tender')
 const loggerRoute = log4js.getLogger('route')
-const loggerError = log4js.getLogger('error')
 
-module.exports = { loggerMain, loggerTender, loggerRoute, loggerError }
+module.exports = { loggerMain, loggerTender, loggerRoute }

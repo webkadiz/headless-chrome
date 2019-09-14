@@ -25,7 +25,7 @@ const {
   createSuccess,
   wait
 } = require('../util/functions')
-const { loggerMain, loggerTender} = require('../util/logger')
+const { loggerMain, loggerTender } = require('../util/logger')
 const Tender = require('../models/tender')
 
 module.exports = async (pos, amount) => {
@@ -64,16 +64,13 @@ module.exports = async (pos, amount) => {
     const differenceBetweenAuth = differenceTime(new Date(), lastTimeOfAuth)
 
     if (differenceBetweenReload > PAGE_RELOAD_DELAY && !isPageBusy) {
-      console.log('page reload')
-      loggerMain.info('page reload')
-
       isPageBusy = true
-
       lastTimeOfReload = +new Date()
 
       try {
+        loggerMain.info('page reload start')
         await page.reload()
-        await wait(1000)
+        await wait(500)
       } catch (e) {
         loggerMain.error('page reload failed')
       }
@@ -95,8 +92,6 @@ module.exports = async (pos, amount) => {
       })
 
       if (closlyTender) {
-        loggerMain.info('auth start')
-
         const millisecondsBeforeTenderEnd = differenceTime(
           closlyTender.tenderTimeEnd,
           new Date()
@@ -105,44 +100,39 @@ module.exports = async (pos, amount) => {
           millisecondsBeforeTenderEnd
         )
 
-        loggerMain.info(
-          secondsBeforeTenderEnd,
-          closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE,
-          'auth'
-        )
-
         if (
           secondsBeforeTenderEnd <
           closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE
         ) {
+          loggerMain.info('auth start')
           lastTimeOfAuth = +new Date()
 
           try {
+            loggerMain.info('auth logout start')
             await page.evaluate(logoutScript)
-            await wait(1000)
+            await wait(500)
           } catch (e) {
-            loggerMain.error('auth failed logout')
+            loggerMain.error('auth logout failed')
           }
 
-          loggerMain.info('auth begin login')
-
           try {
+
+            loggerMain.info('auth login start')
             await page.goto('***')
-            await wait(1000)
+            await wait(500)
             await page.evaluate(loginScript, credentials)
-            await wait(1000)
+            await wait(500)
           } catch (e) {
-            loggerMain.info('auth login failed')
+            loggerMain.error('auth login failed')
           }
 
           loggerMain.info('auth end')
         }
       }
-    
+
       isPageBusy = false
     }
 
-    
     tendersSlice.forEach(async tender => {
       const { tenderName } = tender
 
@@ -167,13 +157,14 @@ module.exports = async (pos, amount) => {
         !isPageBusy
       ) {
         let error
-        console.log('begin serving', tenderName)
+        let success
         loggerMain.info('begin serving', tenderName)
         isPageBusy = true
 
         try {
           try {
             await page.goto(tender.tenderLink)
+            await wait(100)
           } catch (e) {
             loggerMain.error('goto failed', tenderName)
             error = GOTO
@@ -183,6 +174,7 @@ module.exports = async (pos, amount) => {
           try {
 
             await page.waitFor('.***')
+            await wait(100)
           } catch (e) {
             loggerMain.error('.***', tenderName)
             error = WAIT_SUBMIT_OFFER
@@ -191,6 +183,7 @@ module.exports = async (pos, amount) => {
 
           try {
             await page.click('.***')
+            await wait(100)
           } catch (e) {
             loggerMain.error('.***', tenderName)
             error = CLICK_SUBMIT_OFFER
@@ -201,6 +194,7 @@ module.exports = async (pos, amount) => {
             await page.waitFor(
               `.***`
             )
+            await wait(100)
           } catch (e) {
             loggerMain.error('positions wait failed', tenderName)
             error = WAIT_POSITIONS
@@ -208,27 +202,31 @@ module.exports = async (pos, amount) => {
           }
 
           try {
-            await page.evaluate(serveTenderScript, tender)
+            ({ error, success } = await page.evaluate(serveTenderScript, tender))
+            await wait(100)
           } catch (e) {
             loggerMain.error('positions wait failed', tenderName)
             error = EVALUATE_SCRIPT
             throw e
           }
 
-          console.log('tender success', tenderName)
+          if (error) throw error
+
           loggerMain.info('tender success', tenderName)
-          tender.messages.push(createSuccess('Тендер успешно отработан'))
+          tender.messages.push(createSuccess(success))
         } catch (e) {
-          if (!error) error = 'Тендер отработал с ошибкой'
-          console.log('tender error', tenderName)
+          if (!error) error = 'Тендер отработал с неизвестной ошибкой'
           loggerMain.error('tender error', tenderName)
           tender.messages.push(createError(error))
         }
 
         try {
-          await Tender.updateOne({ tenderName: tenderName }, { inWork: false, messages: tender.messages })
-        } catch(e) {
-          loggerMain.error('update tender fail in serving')
+          await Tender.updateOne(
+            { tenderName },
+            { inWork: false, messages: tender.messages }
+          )
+        } catch (e) {
+          loggerMain.error('tender update in mongo fail')
         }
 
         loggerMain.info('end serving', tenderName)
