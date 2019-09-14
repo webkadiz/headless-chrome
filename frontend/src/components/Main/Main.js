@@ -34,7 +34,6 @@ export default class Main extends Component {
     }
 
     const dialogTitle = `Вы хотите удалить тендер: ${nameOfDeleteTender}?`
-    console.log('request delete tender')
     this.setState({
       isDialogOpen: true,
       dialogTitle,

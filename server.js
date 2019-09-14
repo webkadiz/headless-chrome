@@ -34,7 +34,6 @@ if (DEVELOPMENT) {
 app.use('/tender', tenderRoute)
 
 app.get('*', (req, res) => {
-  console.log('*')
   res.render('index')
 })
 

@@ -34,7 +34,6 @@ export default class App extends React.Component {
 
       axios('/tender')
         .then(response => {
-          console.log('new')
           this.setState({
             tenders: response.data.tenders
           })
@@ -65,7 +64,6 @@ export default class App extends React.Component {
   }
 
   deleteTender = nameOfDeleteTender => {
-    console.log('delete tender from app')
     this.setState({
       tenders: this.state.tenders.filter(
         tender => tender.tenderName !== nameOfDeleteTender
@@ -93,7 +91,6 @@ export default class App extends React.Component {
   }
 
   setEditableTender = nameOfEditableTender => {
-    console.log('set edit tender')
     const editableTender = this.state.tenders.find(
       tender => tender.tenderName === nameOfEditableTender
     )

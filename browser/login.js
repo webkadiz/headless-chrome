@@ -7,7 +7,6 @@ module.exports = ({LOGIN, PASS}) => {
     return this.querySelectorAll(selector)
   }
 
-  console.log('begin')
   const loginForm = document.qAll('#***')[1]
   const loginEl = loginForm.q('#login')
   const passEl = loginForm.q('#pass')
@@ -19,9 +18,5 @@ module.exports = ({LOGIN, PASS}) => {
   loginEl.dispatchEvent(new InputEvent('input'))
   passEl.dispatchEvent(new InputEvent('input'))
 
-  console.log(loginEl.value, passEl.value)
-  console.log(submitBtn, location.href)
   submitBtn.click()
-
-  console.log(123, location)
 }
