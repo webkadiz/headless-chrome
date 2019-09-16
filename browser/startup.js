@@ -68,11 +68,11 @@ module.exports = async (pos, amount) => {
       lastTimeOfReload = +new Date()
 
       try {
-        loggerMain.info('page reload start')
+        loggerMain.info('page reload start', pos)
         await page.reload()
         await wait(500)
       } catch (e) {
-        loggerMain.error('page reload failed')
+        loggerMain.error('page reload failed', pos)
       }
 
       isPageBusy = false
@@ -104,29 +104,29 @@ module.exports = async (pos, amount) => {
           secondsBeforeTenderEnd <
           closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE
         ) {
-          loggerMain.info('auth start')
+          loggerMain.info('auth start', pos)
           lastTimeOfAuth = +new Date()
 
           try {
-            loggerMain.info('auth logout start')
+            loggerMain.info('auth logout start', pos)
             await page.evaluate(logoutScript)
             await wait(500)
           } catch (e) {
-            loggerMain.error('auth logout failed')
+            loggerMain.error('auth logout failed', pos)
           }
 
           try {
 
-            loggerMain.info('auth login start')
+            loggerMain.info('auth login start', pos)
             await page.goto('***')
             await wait(500)
             await page.evaluate(loginScript, credentials)
             await wait(500)
           } catch (e) {
-            loggerMain.error('auth login failed')
+            loggerMain.error('auth login failed', pos)
           }
 
-          loggerMain.info('auth end')
+          loggerMain.info('auth end', pos)
         }
       }
 
