@@ -84,7 +84,7 @@ module.exports = async (pos, amount) => {
       isPageBusy = true
 
       // find closelyTender
-      tendersSlice.forEach(tender => {
+      tenders.forEach(tender => {
         if (new Date(tender.tenderTimeEnd) < closlyTime && tender.inWork) {
           closlyTime = +new Date(tender.tenderTimeEnd)
           closlyTender = tender
