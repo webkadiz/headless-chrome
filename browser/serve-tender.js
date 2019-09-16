@@ -62,9 +62,11 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
     }
   }
 
+
   const sum = +document.q('#***').value
   const areement = document.q('#***')
   const saveBtn = document.q(`***`)
+  const confirmBtn = document.q(`***`)
 
   if (sum < tenderMinPrice)
     return {
@@ -75,7 +77,7 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
   areement.dispatchEvent(new InputEvent('click'))
 
   try {
-    await wait(() => saveBtn.click(), 100)
+    await wait(() => saveBtn.click(), 200)
   } catch (e) {
     return {
       error: 'Не удалось нажать на "сохранить позиции"'
@@ -83,7 +85,23 @@ module.exports = async ({ tenderMinPrice, tenderStep }) => {
   }
 
   try {
-    await wait(100)
+    await wait(200)
+  } catch (e) {
+    return {
+      error: 'Ошибка приложения'
+    }
+  }
+
+  // try {
+  //   await wait(() => confirmBtn.click(), 200)
+  // } catch (e) {
+  //   return {
+  //     error: 'Не удалось нажать на "отправить"'
+  //   }
+  // }
+
+  try {
+    await wait(200)
   } catch (e) {
     return {
       error: 'Ошибка приложения'
