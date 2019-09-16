@@ -63,20 +63,20 @@ module.exports = async (pos, amount) => {
     const differenceBetweenReload = differenceTime(new Date(), lastTimeOfReload)
     const differenceBetweenAuth = differenceTime(new Date(), lastTimeOfAuth)
 
-    if (differenceBetweenReload > PAGE_RELOAD_DELAY && !isPageBusy) {
-      isPageBusy = true
-      lastTimeOfReload = +new Date()
+    // if (differenceBetweenReload > PAGE_RELOAD_DELAY && !isPageBusy) {
+    //   isPageBusy = true
+    //   lastTimeOfReload = +new Date()
 
-      try {
-        loggerMain.info('page reload start', pos)
-        await page.reload()
-        await wait(500)
-      } catch (e) {
-        loggerMain.error('page reload failed', pos)
-      }
+    //   try {
+    //     loggerMain.info('page reload start', pos)
+    //     await page.reload()
+    //     await wait(500)
+    //   } catch (e) {
+    //     loggerMain.error('page reload failed', pos)
+    //   }
 
-      isPageBusy = false
-    }
+    //   isPageBusy = false
+    // }
 
     if (differenceBetweenAuth > PAGE_AUTH_DELAY && !isPageBusy) {
       // let closlyTime = Infinity
@@ -150,6 +150,8 @@ module.exports = async (pos, amount) => {
         await page.goto('***')
         await wait(500)
         await page.evaluate(loginScript, credentials)
+        await wait(500)
+        await page.goto('***')
         await wait(500)
       } catch (e) {
         loggerMain.error('auth login failed', pos)
