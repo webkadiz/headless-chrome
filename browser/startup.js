@@ -193,7 +193,6 @@ module.exports = async (pos, amount) => {
         try {
           try {
             await page.goto(tender.tenderLink)
-            await wait(100)
           } catch (e) {
             loggerMain.error('goto failed', tenderName)
             error = GOTO
@@ -201,9 +200,7 @@ module.exports = async (pos, amount) => {
           }
 
           try {
-
-            await page.waitFor('.***')
-            await wait(100)
+            await page.waitFor('***')
           } catch (e) {
             loggerMain.error('.***', tenderName)
             error = WAIT_SUBMIT_OFFER
@@ -212,7 +209,6 @@ module.exports = async (pos, amount) => {
 
           try {
             await page.click('.***')
-            await wait(100)
           } catch (e) {
             loggerMain.error('.***', tenderName)
             error = CLICK_SUBMIT_OFFER
@@ -223,7 +219,6 @@ module.exports = async (pos, amount) => {
             await page.waitFor(
               `.***`
             )
-            await wait(100)
           } catch (e) {
             loggerMain.error('positions wait failed', tenderName)
             error = WAIT_POSITIONS
