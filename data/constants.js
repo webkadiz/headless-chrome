@@ -13,11 +13,19 @@ module.exports = {
     MESSAGE_BE_ARRAY: 'Сообщения должны быть массивом'
   },
   errors: {
+    UNKNOWN_ERROR: 'Тендер отработал с неизвестной ошибкой',
     GOTO: 'Не удалось перейти по ссылке',
     WAIT_SUBMIT_OFFER: 'Не удалось найти кнопку "Подать оферту"',
     CLICK_SUBMIT_OFFER: 'Не удалось кликнуть по кнопке "Подать оферту"',
     WAIT_POSITIONS: 'Не удалось дождаться загрузки позиций',
-    EVALUATE_SCRIPT: 'Ошибка выполнения скрипта на странице'
+    SCRIPT_SERVE_POSITIONS: 'Ошибка в скрипте обработки позиций',
+    GET_SUM: "Не удалось получить суммы всех позиций",
+    SCRIPT_SAVE_OFFER: 'Ошибка в скрипте сохранения тендера',
+    WAIT_SAVE_OFFER_ALERT: 'Не удалось дождаться сообщения сохранения заявки'
+  },
+  success: {
+    TENDER_SUCCESS_ALL: 'Тендер успешно отработал',
+    TENDER_SUCCESS_PRICE: 'Цена тендера оказалась меньше минимальной'
   },
   AUTH_ADVANCE: 1000 * 60, // 1 minute
   PAGE_RELOAD_DELAY: 1000 * 60 * 20, // 20 minute

@@ -2,7 +2,8 @@
 const puppeteer = require('puppeteer-core')
 const loginScript = require('./login')
 const logoutScript = require('./logout')
-const serveTenderScript = require('./serve-tender')
+const servePositionsScript = require('./serve-positions')
+const saveOffer = require('./save-offer')
 const {
   AUTH_ADVANCE,
   PAGE_RELOAD_DELAY,
@@ -10,20 +11,24 @@ const {
   MAIN_LOOP_DELAY,
   DEVELOPMENT,
   errors: {
+    UNKNOWN_ERROR,
     GOTO,
     WAIT_SUBMIT_OFFER,
     CLICK_SUBMIT_OFFER,
     WAIT_POSITIONS,
-    EVALUATE_SCRIPT
-  }
+    SCRIPT_SERVE_POSITIONS,
+    GET_SUM,
+    SCRIPT_SAVE_OFFER,
+    WAIT_SAVE_OFFER_ALERT
+  },
+  success: { TENDER_SUCCESS_ALL, TENDER_SUCCESS_PRICE }
 } = require('../data/constants')
 const credentials = require('../data/credential')
 const {
   differenceTime,
   millisecondsToSeconds,
   createError,
-  createSuccess,
-  wait
+  createSuccess
 } = require('../util/functions')
 const { loggerMain, loggerTender } = require('../util/logger')
 const Tender = require('../models/tender')
@@ -138,21 +143,25 @@ module.exports = async (pos, amount) => {
       lastTimeOfAuth = +new Date()
 
       try {
+        console.log('logout')
         loggerMain.info('auth logout start', pos)
         await page.evaluate(logoutScript)
-        await wait(500)
       } catch (e) {
         loggerMain.error('auth logout failed', pos)
       }
 
       try {
         loggerMain.info('auth login start', pos)
-        await page.goto('***')
-        await wait(500)
+        await page.goto('***', {
+          waitUntil: 'networkidle2'
+        })
+
         await page.evaluate(loginScript, credentials)
-        await wait(500)
-        await page.goto('***')
-        await wait(500)
+        await page.waitFor('.table')
+
+        await page.goto('***', {
+          waitUntil: 'networkidle2'
+        })
       } catch (e) {
         loggerMain.error('auth login failed', pos)
       }
@@ -185,62 +194,64 @@ module.exports = async (pos, amount) => {
         tender.inWork &&
         !isPageBusy
       ) {
-        let error
-        let success
+        let error = UNKNOWN_ERROR
+        let success = TENDER_SUCCESS_ALL
         loggerMain.info('begin serving', tenderName)
         isPageBusy = true
 
         try {
-          try {
-            await page.goto(tender.tenderLink)
-          } catch (e) {
-            loggerMain.error('goto failed', tenderName)
-            error = GOTO
-            throw e
-          }
 
-          try {
-            await page.waitFor('***')
-          } catch (e) {
-            loggerMain.error('.***', tenderName)
-            error = WAIT_SUBMIT_OFFER
-            throw e
-          }
+          error = GOTO
+          await page.goto(tender.tenderLink, { waitUntil: 'networkidle2' })
 
-          try {
-            await page.click('.***')
-          } catch (e) {
-            loggerMain.error('.***', tenderName)
-            error = CLICK_SUBMIT_OFFER
-            throw e
-          }
+          error = WAIT_SUBMIT_OFFER
+          await page.waitFor('.*** .btn')
 
-          try {
-            await page.waitFor(
-              `.***`
+          error = CLICK_SUBMIT_OFFER
+          await page.click('.*** .btn')
+
+          error = WAIT_POSITIONS
+          await Promise.all([
+            page.waitFor(
+              `***`
+            ),
+            page.waitFor(
+              () =>
+                document.querySelector('#***') &&
+                document.querySelector('#***').value
+            ),
+            page.waitFor(
+              () =>
+                document.querySelector('#***') &&
+                document.querySelector('#***').value
+            ),
+            page.waitFor(
+              () =>
+                document.querySelector('#***') &&
+                document.querySelector('#***').value
             )
-          } catch (e) {
-            loggerMain.error('positions wait failed', tenderName)
-            error = WAIT_POSITIONS
-            throw e
+          ])
+
+          error = SCRIPT_SERVE_POSITIONS
+          await page.evaluate(servePositionsScript, tender.tenderStep)
+
+          error = GET_SUM
+          const sum = await page.$eval('#Summa', el => el.value)
+
+          if (sum >= tender.tenderMinPrice) {
+            error = SCRIPT_SAVE_OFFER
+            await page.evaluate(saveOffer)
+
+            error = WAIT_SAVE_OFFER_ALERT
+            await page.waitFor(`[ng-if="alertId == 'offerSave'"]`)
+          } else {
+            success = TENDER_SUCCESS_PRICE
           }
 
-          try {
-            ({ error, success } = await page.evaluate(serveTenderScript, tender))
-            await wait(100)
-          } catch (e) {
-            loggerMain.error('positions wait failed', tenderName)
-            error = EVALUATE_SCRIPT
-            throw e
-          }
-
-          if (error) throw error
-
-          loggerMain.info('tender success', tenderName)
+          loggerMain.info(success, 'tender success', tenderName, pos)
           tender.messages.push(createSuccess(success))
         } catch (e) {
-          if (!error) error = 'Тендер отработал с неизвестной ошибкой'
-          loggerMain.error('tender error', tenderName)
+          loggerMain.error(error, e, tenderName, pos)
           tender.messages.push(createError(error))
         }
 
