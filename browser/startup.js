@@ -84,89 +84,65 @@ module.exports = async (pos, amount) => {
     // }
 
     if (differenceBetweenAuth > PAGE_AUTH_DELAY && !isPageBusy) {
-      // let closlyTime = Infinity
-      // let closlyTender
-      // isPageBusy = true
 
-      // // find closelyTender
-      // tenders.forEach(tender => {
-      //   if (new Date(tender.tenderTimeEnd) < closlyTime && tender.inWork) {
-      //     closlyTime = +new Date(tender.tenderTimeEnd)
-      //     closlyTender = tender
-      //   }
-      // })
-
-      // if (closlyTender) {
-      //   const millisecondsBeforeTenderEnd = differenceTime(
-      //     closlyTender.tenderTimeEnd,
-      //     new Date()
-      //   )
-      //   const secondsBeforeTenderEnd = millisecondsToSeconds(
-      //     millisecondsBeforeTenderEnd
-      //   )
-
-
-      //   if (
-      //     secondsBeforeTenderEnd <
-      //     closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE
-      //   ) {
-      //     loggerMain.info('auth start', pos)
-      //     lastTimeOfAuth = +new Date()
-
-      //     try {
-      //       loggerMain.info('auth logout start', pos)
-      //       await page.evaluate(logoutScript)
-      //       await wait(500)
-      //     } catch (e) {
-      //       loggerMain.error('auth logout failed', pos)
-      //     }
-
-      //     try {
-      //       loggerMain.info('auth login start', pos)
-      //       await page.goto('***')
-      //       await wait(500)
-      //       await page.evaluate(loginScript, credentials)
-      //       await wait(500)
-      //     } catch (e) {
-      //       loggerMain.error('auth login failed', pos)
-      //     }
-
-      //     loggerMain.info('auth end', pos)
-      //   }
-      // }
-
-      // isPageBusy = false
-
+      let closlyTime = Infinity
+      let closlyTender
       isPageBusy = true
 
-      loggerMain.info('auth start', pos)
-      lastTimeOfAuth = +new Date()
+      // find closelyTender
+      tenders.forEach(tender => {
+        if (new Date(tender.tenderTimeEnd) < closlyTime && tender.inWork) {
+          closlyTime = +new Date(tender.tenderTimeEnd)
+          closlyTender = tender
+        }
+      })
 
-      try {
-        console.log('logout')
-        loggerMain.info('auth logout start', pos)
-        await page.evaluate(logoutScript)
-      } catch (e) {
-        loggerMain.error('auth logout failed', pos)
+      if (closlyTender) {
+        const millisecondsBeforeTenderEnd = differenceTime(
+          closlyTender.tenderTimeEnd,
+          new Date()
+        )
+        const secondsBeforeTenderEnd = millisecondsToSeconds(
+          millisecondsBeforeTenderEnd
+        )
+
+        if (
+          secondsBeforeTenderEnd <
+          closlyTender.tenderSecondsBeforeEnd + AUTH_ADVANCE
+        ) {
+          loggerMain.info('auth start', pos)
+          lastTimeOfAuth = +new Date()
+
+          try {
+            console.log('logout')
+            loggerMain.info('auth logout start', pos)
+            await page.evaluate(logoutScript)
+          } catch (e) {
+            loggerMain.error('auth logout failed', pos)
+          }
+
+          try {
+            loggerMain.info('auth login start', pos)
+            await page.goto('***', {
+              waitUntil: 'networkidle2'
+            })
+
+
+            await page.evaluate(loginScript, credentials)
+            await page.waitFor('.table')
+
+            await page.goto('***', {
+              waitUntil: 'networkidle2'
+            })
+          } catch (e) {
+            loggerMain.error('auth login failed', pos)
+          }
+
+
+          loggerMain.info('auth end', pos)
+
+        }
       }
-
-      try {
-        loggerMain.info('auth login start', pos)
-        await page.goto('***', {
-          waitUntil: 'networkidle2'
-        })
-
-        await page.evaluate(loginScript, credentials)
-        await page.waitFor('.table')
-
-        await page.goto('***', {
-          waitUntil: 'networkidle2'
-        })
-      } catch (e) {
-        loggerMain.error('auth login failed', pos)
-      }
-
-      loggerMain.info('auth end', pos)
 
       isPageBusy = false
     }
