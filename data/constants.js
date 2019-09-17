@@ -27,7 +27,7 @@ module.exports = {
     TENDER_SUCCESS_ALL: 'Тендер успешно отработал',
     TENDER_SUCCESS_PRICE: 'Цена тендера оказалась меньше минимальной'
   },
-  AUTH_ADVANCE: 1000 * 60, // 1 minute
+  AUTH_ADVANCE: 60, // 1 minute
   PAGE_RELOAD_DELAY: 1000 * 60 * 20, // 20 minute
   PAGE_AUTH_DELAY: 1000 * 60 * 5, // 20 minute
   MAIN_LOOP_DELAY: 1000, // 1 second
