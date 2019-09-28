@@ -23,7 +23,7 @@ module.exports = async tenderStep => {
 
         i++
         if (i < positions.length) {
-          setTimeout(innerRecursion.bind(null, res, rej), 500)
+          setTimeout(innerRecursion.bind(null, res, rej), 1000)
         } else {
           res()
         }
